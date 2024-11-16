@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useChat } from '../context/ChatContext';
 import MessageBubble from './MessageBubble';
 import { fetchChatResponse, fetchImageGeneration } from '../utils/apiClient';
@@ -10,8 +10,26 @@ export default function ChatWindow() {
   const [input, setInput] = useState('');
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const { state, dispatch } = useChat();
-  
+  const messagesEndRef = useRef(null);
   const activeSession = state.sessions.find(s => s.id === state.activeSessionId);
+  
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  };
+
+  // Scroll on messages change or active session change
+  useEffect(() => {
+    if (activeSession?.messages?.length > 0) {
+      scrollToBottom();
+    }
+  }, [activeSession?.messages]);
+
+  // Scroll when switching sessions
+  useEffect(() => {
+    if (state.activeSessionId) {
+      scrollToBottom();
+    }
+  }, [state.activeSessionId]);
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -124,6 +142,7 @@ export default function ChatWindow() {
               {activeSession?.messages.map((message, index) => (
                 <MessageBubble key={index} message={message} />
               ))}
+              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
