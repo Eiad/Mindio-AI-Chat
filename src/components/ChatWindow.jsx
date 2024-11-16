@@ -7,20 +7,20 @@ export default function ChatWindow() {
   const [input, setInput] = useState('');
   const { state, dispatch } = useChat();
   
+  const activeSession = state.sessions.find(s => s.id === state.activeSessionId);
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!input.trim()) return;
+    if (!input.trim() || !activeSession) return;
     
-    dispatch({
-      type: 'ADD_MESSAGE',
-      payload: {
-        role: 'user',
-        content: input,
-        timestamp: new Date().toISOString()
-      }
-    });
+    const userMessage = {
+      role: 'user',
+      content: input,
+      timestamp: new Date().toISOString()
+    };
     
+    dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
     setInput('');
     
     try {
@@ -38,10 +38,18 @@ export default function ChatWindow() {
     }
   };
 
+  if (!activeSession) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p className="text-gray-500">Select or create a chat to get started</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto">
+    <div className="flex-1 flex flex-col h-screen">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {state.messages.map((message, index) => (
+        {activeSession.messages.map((message, index) => (
           <MessageBubble key={index} message={message} />
         ))}
       </div>
