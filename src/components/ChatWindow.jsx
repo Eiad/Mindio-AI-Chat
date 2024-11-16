@@ -4,9 +4,11 @@ import MessageBubble from './MessageBubble';
 import { fetchChatResponse, fetchImageGeneration } from '../utils/apiClient';
 import Header from './Header';
 import AgentCard from './AgentCard';
+import ChatControls from './ChatControls';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const { state, dispatch } = useChat();
   
   const activeSession = state.sessions.find(s => s.id === state.activeSessionId);
@@ -26,7 +28,7 @@ export default function ChatWindow() {
     setInput('');
     
     try {
-      const response = await fetchChatResponse(input);
+      const response = await fetchChatResponse(input, state.settings);
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
@@ -37,6 +39,14 @@ export default function ChatWindow() {
       });
     } catch (error) {
       console.error('Failed to get response:', error);
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please try again.',
+          timestamp: new Date().toISOString()
+        }
+      });
     }
   };
 
@@ -121,14 +131,15 @@ export default function ChatWindow() {
       
       <div className="border-t p-4">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-center space-x-2 mb-2">
-            <select className="text-sm border rounded px-2 py-1">
-              <option>Default</option>
-            </select>
-            <select className="text-sm border rounded px-2 py-1">
-              <option>Default</option>
-            </select>
-          </div>
+          <ChatControls 
+            settings={state.settings}
+            onSettingsChange={(key, value) => 
+              dispatch({ 
+                type: 'UPDATE_SETTINGS', 
+                payload: { [key]: value } 
+              })
+            }
+          />
           <div className="flex items-end space-x-2">
             <div className="flex-1 border rounded-lg bg-white">
               <textarea
@@ -138,16 +149,26 @@ export default function ChatWindow() {
                 className="w-full p-3 focus:outline-none resize-none"
                 rows={1}
               />
-              <div className="flex items-center px-3 py-2 border-t">
-                <button className="p-1 hover:bg-gray-100 rounded">🔍</button>
-                <button className="p-1 hover:bg-gray-100 rounded">📎</button>
-                <button className="p-1 hover:bg-gray-100 rounded">✏️</button>
-                <button className="p-1 hover:bg-gray-100 rounded">🎤</button>
-              </div>
             </div>
             <button
+              onClick={handleImageGeneration}
+              disabled={isGeneratingImage || !input.trim()}
+              className={`px-4 py-3 rounded-lg ${
+                isGeneratingImage || !input.trim()
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-purple-500 hover:bg-purple-600 text-white'
+              }`}
+            >
+              {isGeneratingImage ? '🔄' : '🎨'}
+            </button>
+            <button
               onClick={handleSubmit}
-              className="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              disabled={!input.trim()}
+              className={`px-4 py-3 rounded-lg ${
+                !input.trim()
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-blue-500 hover:bg-blue-600 text-white'
+              }`}
             >
               Send
             </button>

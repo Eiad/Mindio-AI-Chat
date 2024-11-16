@@ -10,7 +10,11 @@ const initialState = {
     apiKey: '',
     temperature: 0.7,
     maxTokens: 1000,
-    darkMode: false
+    darkMode: false,
+    outputFormat: 'default',
+    tone: 'default',
+    writingStyle: 'default',
+    language: 'default'
   }
 };
 
