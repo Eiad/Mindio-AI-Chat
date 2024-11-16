@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useChat } from '../context/ChatContext';
 import MessageBubble from './MessageBubble';
 import { fetchChatResponse, fetchImageGeneration } from '../utils/apiClient';
+import Header from './Header';
+import AgentCard from './AgentCard';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const { state, dispatch } = useChat();
   
   const activeSession = state.sessions.find(s => s.id === state.activeSessionId);
@@ -90,38 +91,69 @@ export default function ChatWindow() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-screen">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {activeSession.messages.map((message, index) => (
-          <MessageBubble key={index} message={message} />
-        ))}
+    <div className="flex-1 flex flex-col h-screen bg-white">
+      <Header />
+      
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-3xl mx-auto py-4 px-6">
+          {!state.activeSessionId ? (
+            <div className="flex flex-col items-center justify-center h-full space-y-6">
+              <h2 className="text-2xl font-semibold">Welcome to TypingMind</h2>
+              <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
+                {/* Agent cards */}
+                <AgentCard
+                  icon="🎥"
+                  title="YouTube Content Writer"
+                  description="A YouTube content writer specialized in creating engaging content"
+                />
+                {/* Add more agent cards */}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {activeSession?.messages.map((message, index) => (
+                <MessageBubble key={index} message={message} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       
-      <form onSubmit={handleSubmit} className="p-4 border-t">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Type your message..."
-          />
-          <button
-            type="button"
-            onClick={handleImageGeneration}
-            disabled={isGeneratingImage}
-            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50"
-          >
-            {isGeneratingImage ? 'Generating...' : '🎨 Generate Image'}
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            Send
-          </button>
+      <div className="border-t p-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center space-x-2 mb-2">
+            <select className="text-sm border rounded px-2 py-1">
+              <option>Default</option>
+            </select>
+            <select className="text-sm border rounded px-2 py-1">
+              <option>Default</option>
+            </select>
+          </div>
+          <div className="flex items-end space-x-2">
+            <div className="flex-1 border rounded-lg bg-white">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your message..."
+                className="w-full p-3 focus:outline-none resize-none"
+                rows={1}
+              />
+              <div className="flex items-center px-3 py-2 border-t">
+                <button className="p-1 hover:bg-gray-100 rounded">🔍</button>
+                <button className="p-1 hover:bg-gray-100 rounded">📎</button>
+                <button className="p-1 hover:bg-gray-100 rounded">✏️</button>
+                <button className="p-1 hover:bg-gray-100 rounded">🎤</button>
+              </div>
+            </div>
+            <button
+              onClick={handleSubmit}
+              className="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Send
+            </button>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

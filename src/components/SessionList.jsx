@@ -4,37 +4,47 @@ export default function SessionList() {
   const { state, dispatch } = useChat();
 
   return (
-    <div className="w-64 border-r p-4 space-y-4">
-      <button
-        onClick={() => dispatch({ type: 'CREATE_SESSION' })}
-        className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-      >
-        New Chat
-      </button>
-      
-      <div className="space-y-2">
+    <div className="w-72 bg-[#1e2837] text-white flex flex-col h-full">
+      <div className="p-3">
+        <button
+          onClick={() => dispatch({ type: 'CREATE_SESSION' })}
+          className="w-full flex items-center space-x-2 px-4 py-2 bg-[#2c3a4a] hover:bg-[#374557] rounded-lg"
+        >
+          <span>💬</span>
+          <span>New Chat</span>
+        </button>
+        
+        <div className="mt-4 flex items-center space-x-2 px-3">
+          <input
+            type="text"
+            placeholder="Search chats..."
+            className="w-full bg-[#2c3a4a] text-white placeholder-gray-400 px-3 py-1.5 rounded-lg focus:outline-none"
+          />
+          <button className="p-1.5 hover:bg-[#374557] rounded-lg">📎</button>
+          <button className="p-1.5 hover:bg-[#374557] rounded-lg">🔄</button>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto space-y-1 p-2">
         {state.sessions.map((session) => (
           <div
             key={session.id}
-            className={`flex items-center justify-between p-2 rounded-lg cursor-pointer ${
+            className={`flex items-center p-3 rounded-lg cursor-pointer ${
               session.id === state.activeSessionId
-                ? 'bg-blue-100'
-                : 'hover:bg-gray-100'
+                ? 'bg-[#374557]'
+                : 'hover:bg-[#2c3a4a]'
             }`}
             onClick={() => dispatch({ type: 'SET_ACTIVE_SESSION', payload: session.id })}
           >
-            <span className="truncate">
-              {session.messages[0]?.content.substring(0, 30) || 'New Chat'}
-            </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                dispatch({ type: 'DELETE_SESSION', payload: session.id });
-              }}
-              className="text-red-500 hover:text-red-700"
-            >
-              ×
-            </button>
+            <span className="mr-3">💭</span>
+            <div className="flex-1 min-w-0">
+              <div className="truncate text-sm">
+                {session.messages[0]?.content.substring(0, 30) || 'New Chat'}
+              </div>
+              <div className="text-xs text-gray-400">
+                {new Date(session.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
           </div>
         ))}
       </div>
