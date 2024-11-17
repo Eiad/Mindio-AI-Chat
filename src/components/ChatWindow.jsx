@@ -6,6 +6,7 @@ import Header from './Header';
 import AgentCard from './AgentCard';
 import ChatControls from './ChatControls';
 import FileUpload from './FileUpload';
+import ImageUpload from './ImageUpload';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -153,6 +154,7 @@ export default function ChatWindow() {
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center space-x-2">
             <FileUpload />
+            <ImageUpload />
             <div className="flex-1">
               <ChatControls 
                 settings={state.settings}
