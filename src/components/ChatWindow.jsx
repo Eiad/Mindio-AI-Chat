@@ -5,8 +5,7 @@ import { fetchChatResponse, fetchImageGeneration } from '../utils/apiClient';
 import Header from './Header';
 import AgentCard from './AgentCard';
 import ChatControls from './ChatControls';
-import FileUpload from './FileUpload';
-import ImageUpload from './ImageUpload';
+import ChatInput from './ChatInput';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -14,6 +13,8 @@ export default function ChatWindow() {
   const { state, dispatch } = useChat();
   const messagesEndRef = useRef(null);
   const activeSession = state.sessions.find(s => s.id === state.activeSessionId);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -33,27 +34,24 @@ export default function ChatWindow() {
     }
   }, [state.activeSessionId]);
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!input.trim() || !activeSession) return;
+  const handleSubmit = async (message) => {
+    if (!message.trim() || !activeSession) return;
     
     const userMessage = {
       role: 'user',
-      content: input,
+      content: message,
       timestamp: new Date().toISOString(),
       messageId: Date.now().toString()
     };
     
     dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
-    setInput('');
+    setIsLoading(true);
     
     try {
-      // Get last 10 messages for context
       const recentMessages = activeSession.messages.slice(-10);
       
       const response = await fetchChatResponse(
-        input, 
+        message, 
         state.settings,
         recentMessages
       );
@@ -80,16 +78,18 @@ export default function ChatWindow() {
           contextType: 'error'
         }
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleImageGeneration = async () => {
-    if (!input.trim() || !activeSession) return;
+  const handleImageGeneration = async (prompt) => {
+    if (!prompt.trim() || !activeSession) return;
     
     setIsGeneratingImage(true);
     const userMessage = {
       role: 'user',
-      content: input,
+      content: prompt,
       type: 'text',
       timestamp: new Date().toISOString(),
       messageId: Date.now().toString()
@@ -98,7 +98,7 @@ export default function ChatWindow() {
     dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
     
     try {
-      const { imageUrl, revisedPrompt } = await fetchImageGeneration(input);
+      const { imageUrl, revisedPrompt } = await fetchImageGeneration(prompt);
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
@@ -123,14 +123,98 @@ export default function ChatWindow() {
         }
       });
     } finally {
-      setInput('');
       setIsGeneratingImage(false);
     }
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      handleSubmit(e);
+      handleSubmit(input);
+    }
+  };
+
+  const handleImageUpload = async (file) => {
+    setIsProcessingFile(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/process-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Processing failed');
+      }
+
+      const data = await response.json();
+      
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: {
+          role: 'assistant',
+          content: data.analysis,
+          type: 'text',
+          timestamp: new Date().toISOString(),
+          contextType: 'image-analysis'
+        }
+      });
+    } catch (error) {
+      console.error('Image handling error:', error);
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: {
+          role: 'assistant',
+          content: 'Failed to process image. Please try again.',
+          type: 'error',
+          timestamp: new Date().toISOString()
+        }
+      });
+    } finally {
+      setIsProcessingFile(false);
+    }
+  };
+
+  const handleFileUpload = async (file) => {
+    setIsProcessingFile(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/process-pdf', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Processing failed');
+      }
+
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: {
+          role: 'assistant',
+          content: data.summary,
+          type: 'text',
+          timestamp: new Date().toISOString(),
+        }
+      });
+    } catch (error) {
+      console.error('PDF handling error:', error);
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: {
+          role: 'assistant',
+          content: error.message || 'Failed to process PDF. Please try again.',
+          type: 'error',
+          timestamp: new Date().toISOString(),
+        }
+      });
+    } finally {
+      setIsProcessingFile(false);
     }
   };
 
@@ -176,58 +260,16 @@ export default function ChatWindow() {
         </div>
       </div>
       
-      <div className="border-t p-4">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center space-x-2">
-            <FileUpload />
-            <ImageUpload />
-            <div className="flex-1">
-              <ChatControls 
-                settings={state.settings}
-                onSettingsChange={(key, value) => 
-                  dispatch({ 
-                    type: 'UPDATE_SETTINGS', 
-                    payload: { [key]: value } 
-                  })
-                }
-              />
-            </div>
-          </div>
-          <div className="flex items-end space-x-2">
-            <div className="flex-1 border rounded-lg bg-white">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
-                className="w-full p-3 focus:outline-none resize-none"
-                rows={1}
-              />
-            </div>
-            <button
-              onClick={handleImageGeneration}
-              disabled={isGeneratingImage || !input.trim()}
-              className={`px-4 py-3 rounded-lg ${
-                isGeneratingImage || !input.trim()
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-purple-500 hover:bg-purple-600 text-white'
-              }`}
-            >
-              {isGeneratingImage ? '🔄' : '🎨'}
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={!input.trim()}
-              className={`px-4 py-3 rounded-lg ${
-                !input.trim()
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-blue-500 hover:bg-blue-600 text-white'
-              }`}
-            >
-              Send
-            </button>
-          </div>
-        </div>
+      <div className="border-t">
+        <ChatInput 
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+          onImageUpload={handleImageUpload}
+          onFileUpload={handleFileUpload}
+          onImageGenerate={handleImageGeneration}
+          isProcessingFile={isProcessingFile}
+          isGeneratingImage={isGeneratingImage}
+        />
       </div>
     </div>
   );
