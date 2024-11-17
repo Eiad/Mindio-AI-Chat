@@ -26,6 +26,14 @@ export async function POST(request) {
       );
     }
 
+    // Check if the file is a PDF
+    if (file.type !== 'application/pdf') {
+      return NextResponse.json(
+        { error: 'File must be a PDF' },
+        { status: 400 }
+      );
+    }
+
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -34,7 +42,7 @@ export async function POST(request) {
     const pdfData = await pdfParse(buffer);
     const textContent = pdfData.text;
 
-    // Call OpenAI API with text content
+    // Call OpenAI API with text content using GPT-4 Turbo
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -42,7 +50,7 @@ export async function POST(request) {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4-turbo-preview',
         messages: [
           {
             role: 'system',

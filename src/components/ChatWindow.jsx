@@ -128,6 +128,12 @@ export default function ChatWindow() {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      handleSubmit(e);
+    }
+  };
+
   if (!activeSession) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -192,6 +198,7 @@ export default function ChatWindow() {
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Type your message..."
                 className="w-full p-3 focus:outline-none resize-none"
                 rows={1}
