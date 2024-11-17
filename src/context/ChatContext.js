@@ -54,14 +54,20 @@ function chatReducer(state, action) {
       };
     case 'ADD_MESSAGE':
       const messageSession = state.sessions.find(s => s.id === state.activeSessionId);
-      const updatedMessages = [...messageSession.messages, {
+      const newMessage = {
         ...action.payload,
-        type: action.payload.type || 'text'
-      }];
+        id: action.payload.messageId || Date.now().toString(),
+        parentMessageId: action.payload.parentMessageId || null,
+        contextType: action.payload.contextType || 'chat'
+      };
+      
+      const updatedMessages = [...messageSession.messages, newMessage];
       const updatedSessionWithMessage = {
         ...messageSession,
-        messages: updatedMessages
+        messages: updatedMessages,
+        lastContext: newMessage.contextType
       };
+      
       storage.saveSession(updatedSessionWithMessage);
       return {
         ...state,

@@ -1,10 +1,14 @@
-export async function fetchChatResponse(prompt, settings) {
+export async function fetchChatResponse(prompt, settings, messages = []) {
   const response = await fetch('/api/chat', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ prompt, settings }),
+    body: JSON.stringify({ 
+      prompt, 
+      settings,
+      conversationHistory: messages 
+    }),
   });
 
   if (!response.ok) {

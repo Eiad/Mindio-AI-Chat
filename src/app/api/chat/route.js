@@ -9,7 +9,7 @@ export async function POST(request) {
   }
 
   try {
-    const { prompt, settings } = await request.json();
+    const { prompt, settings, conversationHistory } = await request.json();
     
     const formatInstructions = {
       'step-by-step': 'Break down your response into clear, numbered steps.',
@@ -28,6 +28,17 @@ export async function POST(request) {
       ${formatInstruction}
       Please respond accordingly while maintaining these characteristics.`;
 
+    const formattedHistory = conversationHistory.map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
+    const messages = [
+      { role: 'system', content: systemMessage },
+      ...formattedHistory,
+      { role: 'user', content: prompt }
+    ];
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -36,10 +47,7 @@ export async function POST(request) {
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: systemMessage },
-          { role: 'user', content: prompt }
-        ],
+        messages,
         temperature: settings?.tone === 'default' ? 0.7 : 0.9,
         max_tokens: 2000,
       }),

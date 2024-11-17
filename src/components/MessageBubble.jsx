@@ -1,5 +1,7 @@
-export default function MessageBubble({ message }) {
+export default function MessageBubble({ message, previousMessage }) {
     const isUser = message.role === 'user';
+    const isContextContinuation = message.parentMessageId || 
+      (previousMessage && message.contextType === previousMessage.contextType);
     
     return (
       <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -8,7 +10,7 @@ export default function MessageBubble({ message }) {
             isUser
               ? 'bg-blue-500 text-white rounded-br-none'
               : 'bg-gray-100 text-gray-800 rounded-bl-none'
-          }`}
+          } ${isContextContinuation ? 'mt-1' : 'mt-4'}`}
         >
           {message.type === 'image' ? (
             <div className="space-y-2">

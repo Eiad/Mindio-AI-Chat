@@ -15,14 +15,17 @@ export default function ImageUpload() {
     formData.append('file', file);
 
     try {
+      const analysisMessage = {
+        role: 'user',
+        content: `Analyzing image: ${file.name}`,
+        type: 'system',
+        timestamp: new Date().toISOString(),
+        messageId: Date.now().toString()
+      };
+      
       dispatch({
         type: 'ADD_MESSAGE',
-        payload: {
-          role: 'user',
-          content: `Analyzing image: ${file.name}`,
-          type: 'system',
-          timestamp: new Date().toISOString()
-        }
+        payload: analysisMessage
       });
 
       const response = await fetch('/api/process-image', {
@@ -42,7 +45,9 @@ export default function ImageUpload() {
           role: 'assistant',
           content: data.analysis,
           type: 'text',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          parentMessageId: analysisMessage.messageId,
+          contextType: 'image-analysis'
         }
       });
 
@@ -56,7 +61,7 @@ export default function ImageUpload() {
         payload: {
           role: 'assistant',
           content: 'Failed to process image. Please try again.',
-          type: 'text',
+          type: 'error',
           timestamp: new Date().toISOString()
         }
       });

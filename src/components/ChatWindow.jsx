@@ -41,20 +41,31 @@ export default function ChatWindow() {
     const userMessage = {
       role: 'user',
       content: input,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      messageId: Date.now().toString()
     };
     
     dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
     setInput('');
     
     try {
-      const response = await fetchChatResponse(input, state.settings);
+      // Get last 10 messages for context
+      const recentMessages = activeSession.messages.slice(-10);
+      
+      const response = await fetchChatResponse(
+        input, 
+        state.settings,
+        recentMessages
+      );
+      
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
           role: 'assistant',
           content: response,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          parentMessageId: userMessage.messageId,
+          contextType: 'chat'
         }
       });
     } catch (error) {
@@ -64,7 +75,9 @@ export default function ChatWindow() {
         payload: {
           role: 'assistant',
           content: 'Sorry, I encountered an error. Please try again.',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          parentMessageId: userMessage.messageId,
+          contextType: 'error'
         }
       });
     }
@@ -78,7 +91,8 @@ export default function ChatWindow() {
       role: 'user',
       content: input,
       type: 'text',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      messageId: Date.now().toString()
     };
     
     dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
@@ -92,7 +106,8 @@ export default function ChatWindow() {
           content: imageUrl,
           type: 'image',
           revisedPrompt,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          parentMessageId: userMessage.messageId
         }
       });
     } catch (error) {
@@ -103,7 +118,8 @@ export default function ChatWindow() {
           role: 'assistant',
           content: error.message || 'Failed to generate image. Please try again.',
           type: 'text',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          parentMessageId: userMessage.messageId
         }
       });
     } finally {
@@ -142,7 +158,11 @@ export default function ChatWindow() {
           ) : (
             <div className="space-y-6">
               {activeSession?.messages.map((message, index) => (
-                <MessageBubble key={index} message={message} />
+                <MessageBubble 
+                  key={index} 
+                  message={message} 
+                  previousMessage={activeSession.messages[index - 1]}
+                />
               ))}
               <div ref={messagesEndRef} />
             </div>
