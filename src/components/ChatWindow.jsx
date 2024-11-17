@@ -5,6 +5,7 @@ import { fetchChatResponse, fetchImageGeneration } from '../utils/apiClient';
 import Header from './Header';
 import AgentCard from './AgentCard';
 import ChatControls from './ChatControls';
+import FileUpload from './FileUpload';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -150,15 +151,20 @@ export default function ChatWindow() {
       
       <div className="border-t p-4">
         <div className="max-w-3xl mx-auto">
-          <ChatControls 
-            settings={state.settings}
-            onSettingsChange={(key, value) => 
-              dispatch({ 
-                type: 'UPDATE_SETTINGS', 
-                payload: { [key]: value } 
-              })
-            }
-          />
+          <div className="flex items-center space-x-2">
+            <FileUpload />
+            <div className="flex-1">
+              <ChatControls 
+                settings={state.settings}
+                onSettingsChange={(key, value) => 
+                  dispatch({ 
+                    type: 'UPDATE_SETTINGS', 
+                    payload: { [key]: value } 
+                  })
+                }
+              />
+            </div>
+          </div>
           <div className="flex items-end space-x-2">
             <div className="flex-1 border rounded-lg bg-white">
               <textarea

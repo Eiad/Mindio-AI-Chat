@@ -9,7 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/pdf-parse": "^1.1.4",
+    "langchain": "^0.3.6",
     "next": "15.0.3",
+    "pdf-parse": "^1.1.1",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "sass": "^1.81.0"
