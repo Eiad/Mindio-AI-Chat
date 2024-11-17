@@ -6,15 +6,18 @@ import Header from './Header';
 import AgentCard from './AgentCard';
 import ChatControls from './ChatControls';
 import ChatInput from './ChatInput';
+import { FiSettings } from 'react-icons/fi';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { state, dispatch } = useChat();
   const messagesEndRef = useRef(null);
   const activeSession = state.sessions.find(s => s.id === state.activeSessionId);
-  const [isLoading, setIsLoading] = useState(false);
   const [isProcessingFile, setIsProcessingFile] = useState(false);
+  const [showControls, setShowControls] = useState(false);
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -134,7 +137,7 @@ export default function ChatWindow() {
   };
 
   const handleImageUpload = async (file) => {
-    setIsProcessingFile(true);
+    setIsProcessing(true);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -172,12 +175,12 @@ export default function ChatWindow() {
         }
       });
     } finally {
-      setIsProcessingFile(false);
+      setIsProcessing(false);
     }
   };
 
   const handleFileUpload = async (file) => {
-    setIsProcessingFile(true);
+    setIsProcessing(true);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -214,7 +217,18 @@ export default function ChatWindow() {
         }
       });
     } finally {
-      setIsProcessingFile(false);
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSettingsChange = (key, value) => {
+    if (key === 'showControls') {
+      setShowControls(value);
+    } else {
+      dispatch({ 
+        type: 'UPDATE_SETTINGS', 
+        payload: { [key]: value } 
+      });
     }
   };
 
@@ -227,48 +241,48 @@ export default function ChatWindow() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-screen bg-white">
-      <Header />
-      
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto py-4 px-6">
-          {!state.activeSessionId ? (
-            <div className="flex flex-col items-center justify-center h-full space-y-6">
-              <h2 className="text-2xl font-semibold">Welcome to TypingMind</h2>
-              <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
-                {/* Agent cards */}
-                <AgentCard
-                  icon="🎥"
-                  title="YouTube Content Writer"
-                  description="A YouTube content writer specialized in creating engaging content"
-                />
-                {/* Add more agent cards */}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {activeSession?.messages.map((message, index) => (
-                <MessageBubble 
-                  key={index} 
-                  message={message} 
-                  previousMessage={activeSession.messages[index - 1]}
-                />
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
+    <div className="flex-1 flex flex-col h-full relative">
+      <div className="flex-1 overflow-y-auto p-4">
+        {activeSession.messages.map((message) => (
+          <MessageBubble key={message.timestamp} message={message} />
+        ))}
+        <div ref={messagesEndRef} />
       </div>
-      
-      <div className="border-t">
+      {isProcessing && (
+        <div
+          className="absolute bottom-150 left-1/2 transform -translate-x-1/2"
+          style={{
+            fontSize: '12px',
+            bottom: '150px',
+            background: '#00000090',
+            color: '#fff',
+            width: '200px',
+            textAlign: 'center',
+            padding: '8px',
+            borderRadius: '4px',
+            zIndex: 10,
+          }}
+        >
+          Processing...
+        </div>
+      )}
+
+      <div className="border-t p-4">
+        {showControls && (
+          <ChatControls 
+            settings={state.settings}
+            onSettingsChange={handleSettingsChange}
+          />
+        )}
         <ChatInput 
           onSubmit={handleSubmit}
           isLoading={isLoading}
           onImageUpload={handleImageUpload}
           onFileUpload={handleFileUpload}
           onImageGenerate={handleImageGeneration}
-          isProcessingFile={isProcessingFile}
+          isProcessingFile={isProcessing}
           isGeneratingImage={isGeneratingImage}
+          onToggleControls={() => setShowControls(!showControls)}
         />
       </div>
     </div>
