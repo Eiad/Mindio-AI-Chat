@@ -7,7 +7,13 @@ const nextConfig = {
     responseLimit: '10mb',
   },
   experimental: {
-    serverComponentsExternalPackages: ['pdf-parse']
+    serverComponentsExternalPackages: ['pdf-parse'],
+    serverActions: true,
+  },
+  webpack: (config) => {
+    config.resolve.alias.canvas = false;
+    config.resolve.alias.encoding = false;
+    return config;
   }
 };
 

@@ -4,6 +4,7 @@ import pdfParse from 'pdf-parse';
 export const config = {
   api: {
     bodyParser: false,
+    responseLimit: '10mb',
   },
 };
 
@@ -26,7 +27,6 @@ export async function POST(request) {
       );
     }
 
-    // Check if the file is a PDF
     if (file.type !== 'application/pdf') {
       return NextResponse.json(
         { error: 'File must be a PDF' },
@@ -34,15 +34,31 @@ export async function POST(request) {
       );
     }
 
-    // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Parse PDF content
-    const pdfData = await pdfParse(buffer);
-    const textContent = pdfData.text;
+    let textContent;
+    try {
+      const pdfData = await pdfParse(buffer, {
+        max: 50, // Maximum pages to parse
+        version: 'v2.0.550'
+      });
+      textContent = pdfData.text;
+    } catch (pdfError) {
+      console.error('PDF parsing error:', pdfError);
+      return NextResponse.json(
+        { error: 'Unable to read PDF content. The file might be corrupted or password protected.' },
+        { status: 422 }
+      );
+    }
 
-    // Call OpenAI API with text content using GPT-4 Turbo
+    if (!textContent || textContent.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'No readable text content found in the PDF' },
+        { status: 422 }
+      );
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -79,7 +95,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('PDF processing error:', error);
     return NextResponse.json(
-      { error: 'Failed to process PDF: ' + error.message },
+      { error: error.message || 'Failed to process PDF' },
       { status: 500 }
     );
   }
