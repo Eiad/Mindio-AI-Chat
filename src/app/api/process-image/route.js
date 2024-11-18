@@ -11,6 +11,7 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file');
+    const inputText = formData.get('text') || 'Analyze this image';
 
     if (!file) {
       return NextResponse.json(
@@ -34,34 +35,31 @@ export async function POST(request) {
           {
             role: 'user',
             content: [
-              {
-                type: 'text',
-                text: 'What is in this image?',
-              },
+              { type: 'text', text: inputText },
               {
                 type: 'image_url',
                 image_url: {
                   url: `data:image/jpeg;base64,${base64Image}`,
-                },
-              },
-            ],
-          },
+                }
+              }
+            ]
+          }
         ],
-        max_tokens: 300,
+        max_tokens: 500
       }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'OpenAI API error');
+      throw new Error(data.error?.message || 'Failed to process image');
     }
 
-    const data = await response.json();
     return NextResponse.json({ analysis: data.choices[0].message.content });
   } catch (error) {
     console.error('Image processing error:', error);
     return NextResponse.json(
-      { error: 'Failed to process image. Please try again.' },
+      { error: error.message || 'Failed to process image' },
       { status: 500 }
     );
   }

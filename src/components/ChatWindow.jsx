@@ -137,12 +137,23 @@ export default function ChatWindow() {
     }
   };
 
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = async (file, text) => {
     setIsProcessing(true);
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('text', text || 'Analyze this image');
 
     try {
+      const userMessage = {
+        role: 'user',
+        content: text || 'Analyzing image...',
+        type: 'text',
+        timestamp: new Date().toISOString(),
+        messageId: Date.now().toString()
+      };
+      
+      dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
+
       const response = await fetch('/api/process-image', {
         method: 'POST',
         body: formData,
@@ -161,6 +172,7 @@ export default function ChatWindow() {
           content: data.analysis,
           type: 'text',
           timestamp: new Date().toISOString(),
+          parentMessageId: userMessage.messageId,
           contextType: 'image-analysis'
         }
       });
@@ -180,10 +192,11 @@ export default function ChatWindow() {
     }
   };
 
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (file, question) => {
     setIsProcessing(true);
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('question', question);
 
     try {
       const response = await fetch('/api/process-pdf', {
@@ -191,12 +204,11 @@ export default function ChatWindow() {
         body: formData,
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || 'Processing failed');
+        throw new Error('Processing failed');
       }
 
+      const data = await response.json();
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {

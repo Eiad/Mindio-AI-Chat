@@ -19,6 +19,7 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file');
+    const question = formData.get('question');
 
     if (!file) {
       return NextResponse.json(
@@ -59,6 +60,8 @@ export async function POST(request) {
       );
     }
 
+    const combinedPrompt = `${question}\n\n---\n\n${textContent}`;
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -70,11 +73,11 @@ export async function POST(request) {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that analyzes PDF documents. Provide a detailed summary of the content.'
+            content: 'You are a helpful assistant. Answer the user\'s query based on the PDF content provided.'
           },
           {
             role: 'user',
-            content: textContent
+            content: combinedPrompt
           }
         ],
         max_tokens: 4000,
