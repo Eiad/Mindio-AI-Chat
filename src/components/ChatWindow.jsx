@@ -8,6 +8,7 @@ import ChatControls from './ChatControls';
 import ChatInput from './ChatInput';
 import { FiSettings } from 'react-icons/fi';
 import styles from './ChatWindow.module.scss';
+import ImageGenerationLoader from './ImageGenerationLoader';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -114,6 +115,7 @@ export default function ChatWindow() {
           parentMessageId: userMessage.messageId
         }
       });
+      return true;
     } catch (error) {
       console.error('Failed to generate image:', error);
       dispatch({
@@ -298,6 +300,7 @@ export default function ChatWindow() {
           onToggleControls={() => setShowControls(!showControls)}
         />
       </div>
+      {isGeneratingImage && <ImageGenerationLoader />}
     </div>
   );
 }
