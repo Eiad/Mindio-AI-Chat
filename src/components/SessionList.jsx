@@ -1,13 +1,18 @@
 import { useChat } from '../context/ChatContext';
+import Link from 'next/link';
 
 export default function SessionList() {
   const { state, dispatch } = useChat();
+
+  const handleCreateSession = () => {
+    dispatch({ type: 'CREATE_SESSION' });
+  };
 
   return (
     <div className="w-72 bg-[#1e2837] text-white flex flex-col h-full">
       <div className="p-3">
         <button
-          onClick={() => dispatch({ type: 'CREATE_SESSION' })}
+          onClick={handleCreateSession}
           className="w-full flex items-center space-x-2 px-4 py-2 bg-[#2c3a4a] hover:bg-[#374557] rounded-lg"
         >
           <span>💬</span>
@@ -27,14 +32,14 @@ export default function SessionList() {
 
       <div className="flex-1 overflow-y-auto space-y-1 p-2">
         {state.sessions.map((session) => (
-          <div
+          <Link
             key={session.id}
+            href={`/chat/${session.id}`}
             className={`flex items-center p-3 rounded-lg cursor-pointer ${
               session.id === state.activeSessionId
                 ? 'bg-[#374557]'
                 : 'hover:bg-[#2c3a4a]'
             }`}
-            onClick={() => dispatch({ type: 'SET_ACTIVE_SESSION', payload: session.id })}
           >
             <span className="mr-3">💭</span>
             <div className="flex-1 min-w-0">
@@ -45,7 +50,7 @@ export default function SessionList() {
                 {new Date(session.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

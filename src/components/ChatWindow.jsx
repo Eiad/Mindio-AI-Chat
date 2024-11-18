@@ -7,6 +7,7 @@ import AgentCard from './AgentCard';
 import ChatControls from './ChatControls';
 import ChatInput from './ChatInput';
 import { FiSettings } from 'react-icons/fi';
+import styles from './ChatWindow.module.scss';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -242,7 +243,7 @@ export default function ChatWindow() {
 
   return (
     <div className="flex-1 flex flex-col h-full relative">
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className={`flex-1 overflow-y-auto p-4 ${styles.mainChatContainer}`}>
         {activeSession.messages.map((message) => (
           <MessageBubble key={message.timestamp} message={message} />
         ))}

@@ -1,5 +1,6 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { storage } from '../utils/storage';
+import { useRouter, usePathname } from 'next/navigation';
 
 const ChatContext = createContext();
 
@@ -82,11 +83,29 @@ function chatReducer(state, action) {
 
 export function ChatProvider({ children }) {
   const [state, dispatch] = useReducer(chatReducer, initialState);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const sessions = storage.getSessions();
     dispatch({ type: 'INIT_SESSIONS', payload: sessions });
   }, []);
+
+  useEffect(() => {
+    if (state.activeSessionId) {
+      router.push(`/chat/${state.activeSessionId}`, { shallow: true });
+    }
+  }, [state.activeSessionId, router]);
+
+  useEffect(() => {
+    const sessionId = pathname.split('/').pop();
+    if (sessionId && sessionId !== state.activeSessionId) {
+      const sessionExists = state.sessions.some(s => s.id === sessionId);
+      if (sessionExists) {
+        dispatch({ type: 'SET_ACTIVE_SESSION', payload: sessionId });
+      }
+    }
+  }, [pathname, state.sessions]);
 
   return (
     <ChatContext.Provider value={{ state, dispatch }}>
