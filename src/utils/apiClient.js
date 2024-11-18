@@ -1,22 +1,28 @@
 export async function fetchChatResponse(prompt, settings, messages = []) {
-  const response = await fetch('/api/chat', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ 
-      prompt, 
-      settings,
-      conversationHistory: messages 
-    }),
-  });
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        prompt, 
+        settings,
+        conversationHistory: messages 
+      }),
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch response from OpenAI API');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to fetch response');
+    }
+
+    const data = await response.json();
+    return data.content;
+  } catch (error) {
+    console.error('Chat API Error:', error);
+    throw new Error(error.message || 'Failed to fetch response');
   }
-
-  const data = await response.json();
-  return data.content;
 }
 
 export async function fetchImageGeneration(prompt) {

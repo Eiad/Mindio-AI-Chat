@@ -39,7 +39,7 @@ export async function POST(request) {
       { role: 'user', content: prompt }
     ];
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,18 +53,21 @@ export async function POST(request) {
       }),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'OpenAI API error');
+    if (!openaiResponse.ok) {
+      const error = await openaiResponse.json();
+      return NextResponse.json(
+        { error: error.error?.message || 'OpenAI API error' },
+        { status: openaiResponse.status }
+      );
     }
 
-    const data = await response.json();
+    const data = await openaiResponse.json();
     return NextResponse.json({ content: data.choices[0].message.content });
     
   } catch (error) {
     console.error('Chat error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch response from OpenAI API' },
+      { error: error.message || 'Failed to fetch response from OpenAI API' },
       { status: 500 }
     );
   }

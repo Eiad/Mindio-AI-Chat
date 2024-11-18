@@ -76,7 +76,7 @@ export default function ChatWindow() {
         type: 'ADD_MESSAGE',
         payload: {
           role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.',
+          content: error.message || 'Sorry, I encountered an error. Please try again.',
           timestamp: new Date().toISOString(),
           parentMessageId: userMessage.messageId,
           contextType: 'error'
