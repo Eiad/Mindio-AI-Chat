@@ -256,38 +256,34 @@ export default function ChatWindow() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full relative">
-      <div className={`flex-1 overflow-y-auto p-4 ${styles.mainChatContainer}`}>
-        {activeSession.messages.map((message) => (
-          <MessageBubble key={message.timestamp} message={message} />
-        ))}
+    <div className="flex-1 flex flex-col h-full relative bg-gray-50">
+      <div className={`flex-1 overflow-y-auto p-6 ${styles.mainChatContainer}`}>
+        <div className="space-y-6">
+          {activeSession.messages.map((message, index) => (
+            <MessageBubble 
+              key={message.timestamp} 
+              message={message}
+              previousMessage={index > 0 ? activeSession.messages[index - 1] : null}
+            />
+          ))}
+        </div>
         <div ref={messagesEndRef} />
       </div>
+
       {isProcessing && (
-        <div
-          className="absolute bottom-150 left-1/2 transform -translate-x-1/2"
-          style={{
-            fontSize: '12px',
-            bottom: '150px',
-            background: '#00000090',
-            color: '#fff',
-            width: '200px',
-            textAlign: 'center',
-            padding: '8px',
-            borderRadius: '4px',
-            zIndex: 10,
-          }}
-        >
+        <div className="fixed bottom-32 left-1/2 transform -translate-x-1/2 bg-black/75 text-white px-4 py-2 rounded-full text-sm">
           Processing...
         </div>
       )}
 
-      <div className="border-t p-4">
+      <div className="border-t bg-white p-4 shadow-lg">
         {showControls && (
-          <ChatControls 
-            settings={state.settings}
-            onSettingsChange={handleSettingsChange}
-          />
+          <div className="mb-4">
+            <ChatControls 
+              settings={state.settings}
+              onSettingsChange={handleSettingsChange}
+            />
+          </div>
         )}
         <ChatInput 
           onSubmit={handleSubmit}
