@@ -29,16 +29,11 @@ function chatReducer(state, action) {
         activeSessionId: action.payload[0]?.id || null
       };
     case 'CREATE_SESSION':
-      const newSession = {
-        id: Date.now().toString(),
-        messages: [],
-        createdAt: new Date().toISOString()
-      };
+      const newSession = action.payload;
       storage.saveSession(newSession);
       return {
         ...state,
-        sessions: [...state.sessions, newSession],
-        activeSessionId: newSession.id
+        sessions: [...state.sessions, newSession]
       };
     case 'DELETE_SESSION':
       storage.deleteSession(action.payload);
@@ -56,6 +51,8 @@ function chatReducer(state, action) {
       };
     case 'ADD_MESSAGE':
       const messageSession = state.sessions.find(s => s.id === state.activeSessionId);
+      if (!messageSession) return state;
+
       const newMessage = {
         ...action.payload,
         id: action.payload.messageId || Date.now().toString(),
@@ -77,6 +74,24 @@ function chatReducer(state, action) {
           s.id === state.activeSessionId ? updatedSessionWithMessage : s
         )
       };
+    case 'UPDATE_SETTINGS':
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          ...action.payload
+        }
+      };
+    case 'UPDATE_SESSION_TITLE':
+      const { sessionId, title } = action.payload;
+      const updatedSessions = state.sessions.map(s => 
+        s.id === sessionId ? { ...s, title } : s
+      );
+      storage.saveSession(updatedSessions.find(s => s.id === sessionId));
+      return {
+        ...state,
+        sessions: updatedSessions
+      };
     default:
       return state;
   }
@@ -86,6 +101,18 @@ export function ChatProvider({ children }) {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Function to create a new session and return its ID
+  const createSession = () => {
+    const newSession = {
+      id: Date.now().toString(),
+      messages: [],
+      createdAt: new Date().toISOString(),
+      title: 'New Chat' // Default title; can be updated later
+    };
+    dispatch({ type: 'CREATE_SESSION', payload: newSession });
+    return newSession.id;
+  };
 
   useEffect(() => {
     const sessions = storage.getSessions();
@@ -106,10 +133,10 @@ export function ChatProvider({ children }) {
         dispatch({ type: 'SET_ACTIVE_SESSION', payload: sessionId });
       }
     }
-  }, [pathname, state.sessions]);
+  }, [pathname, state.sessions, state.activeSessionId]);
 
   return (
-    <ChatContext.Provider value={{ state, dispatch }}>
+    <ChatContext.Provider value={{ state, dispatch, createSession }}>
       {children}
     </ChatContext.Provider>
   );

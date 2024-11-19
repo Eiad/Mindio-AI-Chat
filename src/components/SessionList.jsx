@@ -1,11 +1,14 @@
 import { useChat } from '../context/ChatContext';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function SessionList() {
-  const { state, dispatch } = useChat();
+  const { state, createSession } = useChat();
+  const router = useRouter();
 
   const handleCreateSession = () => {
-    dispatch({ type: 'CREATE_SESSION' });
+    const newSessionId = createSession();
+    router.push(`/chat/${newSessionId}`);
   };
 
   return (
