@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useChat } from '../context/ChatContext';
+import { FiLoader } from 'react-icons/fi'; // Import the loader icon
 
 export default function ImageUpload() {
   const [isProcessing, setIsProcessing] = useState(false);
