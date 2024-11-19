@@ -26,7 +26,9 @@ export async function POST(request) {
       Language: ${settings?.language || 'default'}
       Output Format: ${settings?.outputFormat || 'default'}
       ${formatInstruction}
-      Please respond accordingly while maintaining these characteristics.`;
+      Please respond accordingly while maintaining these characteristics.
+      
+      Important: Use the conversation history to maintain context and provide more relevant responses.`;
 
     const formattedHistory = conversationHistory.map(msg => ({
       role: msg.role,

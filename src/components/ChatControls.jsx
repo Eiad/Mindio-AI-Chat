@@ -26,7 +26,7 @@ export default function ChatControls({ settings, onSettingsChange }) {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-2 bg-white">
       <div className="flex items-center gap-4">
-        <div className="grid grid-cols-4 gap-4 flex-1">
+        <div className="grid grid-cols-5 gap-4 flex-1">
           <div>
             <div className="text-sm text-gray-500 mb-1">Output Format</div>
             <select 
@@ -72,6 +72,20 @@ export default function ChatControls({ settings, onSettingsChange }) {
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 bg-white"
             >
               <option value="default">Default</option>
+            </select>
+          </div>
+
+          <div>
+            <div className="text-sm text-gray-500 mb-1">Context Window</div>
+            <select 
+              value={settings.contextWindow}
+              onChange={(e) => onSettingsChange('contextWindow', parseInt(e.target.value))}
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 bg-white"
+            >
+              <option value="5">5 messages</option>
+              <option value="10">10 messages</option>
+              <option value="15">15 messages</option>
+              <option value="20">20 messages</option>
             </select>
           </div>
         </div>

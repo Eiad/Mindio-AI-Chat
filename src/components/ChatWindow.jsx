@@ -53,12 +53,20 @@ export default function ChatWindow() {
     setIsLoading(true);
     
     try {
-      const recentMessages = activeSession.messages.slice(-10);
+      // Get recent messages for context
+      const contextMessages = activeSession.messages
+        .slice(-state.settings.contextWindow)
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp,
+          messageId: msg.messageId || msg.id
+        }));
       
       const response = await fetchChatResponse(
         message, 
         state.settings,
-        recentMessages
+        contextMessages
       );
       
       dispatch({

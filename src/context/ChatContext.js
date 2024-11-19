@@ -15,7 +15,8 @@ const initialState = {
     outputFormat: 'default',
     tone: 'default',
     writingStyle: 'default',
-    language: 'default'
+    language: 'default',
+    contextWindow: 10 // Number of messages chat history for AI to consider
   }
 };
 
