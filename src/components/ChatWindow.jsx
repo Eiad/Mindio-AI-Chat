@@ -9,6 +9,7 @@ import ApiKeyModal from './ApiKeyModal';
 import { useSessionStorage } from '../hooks/useSessionStorage';
 import WelcomeScreen from './WelcomeScreen';
 import styles from './ChatWindow.module.scss';
+import { FiLoader } from 'react-icons/fi';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -265,10 +266,11 @@ export default function ChatWindow() {
   };
 
   useEffect(() => {
-    if (!apiKey) {
+    const storedApiKey = sessionStorage.getItem('OPENAI_API_KEY');
+    if (!storedApiKey || storedApiKey === 'undefined' || storedApiKey === 'null') {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
     }
-  }, [apiKey, dispatch]);
+  }, [dispatch]);
 
   if (!activeSession) {
     return <WelcomeScreen />;

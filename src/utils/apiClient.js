@@ -1,6 +1,6 @@
 export async function fetchChatResponse(prompt, settings, messages = []) {
   const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
-  if (!apiKey) {
+  if (!apiKey || apiKey === 'undefined' || apiKey === 'null') {
     throw new Error('Please enter your OpenAI API key to continue');
   }
 
@@ -20,6 +20,11 @@ export async function fetchChatResponse(prompt, settings, messages = []) {
 
     const data = await response.json();
 
+    if (response.status === 401) {
+      sessionStorage.removeItem('OPENAI_API_KEY');
+      throw new Error('Invalid API key');
+    }
+
     if (!response.ok) {
       throw new Error(data.error || 'Failed to fetch response');
     }
@@ -28,9 +33,9 @@ export async function fetchChatResponse(prompt, settings, messages = []) {
   } catch (error) {
     console.error('Chat API Error:', error);
     if (error.message.includes('API key')) {
-      sessionStorage.removeItem('OPENAI_API_KEY'); // Clear invalid API key
+      sessionStorage.removeItem('OPENAI_API_KEY');
     }
-    throw new Error(error.message || 'Failed to fetch response');
+    throw error;
   }
 }
 

@@ -59,6 +59,12 @@ export async function POST(request) {
 
     if (!openaiResponse.ok) {
       const error = await openaiResponse.json();
+      if (openaiResponse.status === 401) {
+        return NextResponse.json(
+          { error: 'Invalid API key' },
+          { status: 401 }
+        );
+      }
       return NextResponse.json(
         { error: error.error?.message || 'OpenAI API error' },
         { status: openaiResponse.status }
