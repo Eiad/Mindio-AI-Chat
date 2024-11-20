@@ -16,39 +16,27 @@ export default function ChatIndexPage() {
   return (
     <ChatProvider>
       <div className="flex h-screen">
-        {/* Sidebar Toggle Button for Mobile */}
-        <div className="md:hidden p-4">
-          <button
-            onClick={toggleSessionList}
-            className="text-2xl text-gray-700 focus:outline-none"
-            aria-label="Toggle Session List"
-          >
-            <FiMenu />
-          </button>
-        </div>
-
-        {/* Session List */}
         <div
           className={`
-            fixed inset-y-0 left-0 transform 
-            ${isSessionListOpen ? 'translate-x-0' : '-translate-x-full'} 
-            transition-transform duration-300 ease-in-out
-            md:static md:translate-x-0
-            w-80 bg-white shadow-md z-50
+            fixed inset-y-0 left-0 w-80 bg-white shadow-md z-40
+            transform transition-transform duration-300 ease-in-out
+            ${isSessionListOpen ? 'translate-x-0' : '-translate-x-full'}
+            md:relative md:translate-x-0
           `}
         >
           <SessionList />
         </div>
 
-        {/* Overlay for Mobile when Session List is Open */}
-        {isSessionListOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-30 z-40 md:hidden"
+        {!isSessionListOpen && (
+          <button
             onClick={toggleSessionList}
-          ></div>
+            className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 flex items-center justify-center text-2xl text-gray-700 focus:outline-none bg-white rounded-full shadow-lg"
+            aria-label="Toggle Session List"
+          >
+            <FiMenu />
+          </button>
         )}
 
-        {/* Chat Window */}
         <div className="flex-1">
           <ChatWindow />
         </div>

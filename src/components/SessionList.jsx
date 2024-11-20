@@ -1,8 +1,8 @@
-import { useChat } from '../context/ChatContext';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { FiTrash2, FiPlus, FiSearch } from 'react-icons/fi';
 import { useState } from 'react';
+import Link from 'next/link';
+import { useChat } from '../context/ChatContext';
+import { FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
 import Avatar from './Avatar';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -38,8 +38,8 @@ export default function SessionList() {
   };
 
   return (
-    <div className="w-80 bg-white shadow-md flex flex-col h-full">
-      <div className="flex flex-col items-stretch p-4 border-b bg-gray-50 space-y-4">
+    <div className="w-80 bg-primary text-white shadow-md flex flex-col h-full relative z-[52]">
+      <div className="flex flex-col items-stretch p-4 border-b border-gray-700 space-y-4">
         <button
           onClick={handleCreateSession}
           className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
@@ -49,19 +49,18 @@ export default function SessionList() {
           <span className="font-semibold">New Chat</span>
         </button>
         <div className="relative w-full">
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300" />
           <input
             type="text"
             placeholder="Search chats..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            className="w-full pl-10 pr-4 py-2 bg-primary-light border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-white placeholder-gray-300"
             aria-label="Search Chats"
           />
         </div>
       </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-100">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {filteredSessions.length > 0 ? (
           filteredSessions.map((session) => (
             <Link
@@ -69,15 +68,15 @@ export default function SessionList() {
               href={`/chat/${session.id}`}
               className={`flex items-center p-3 rounded-lg transition-colors duration-200 ${
                 session.id === state.activeSessionId
-                  ? 'bg-blue-100'
-                  : 'hover:bg-white'
+                  ? 'bg-blue-700'
+                  : 'hover:bg-primary-light'
               }`}
               aria-label={`Chat session: ${session.title}`}
             >
               <Avatar name={session.title} />
               <div className="flex-1 ml-3">
-                <h3 className="text-sm font-medium text-gray-800">{session.title}</h3>
-                <p className="text-xs text-gray-500 truncate">
+                <h3 className="text-sm font-medium">{session.title}</h3>
+                <p className="text-xs text-gray-300 truncate">
                   {session.messages[0]?.content.substring(0, 40) || 'No messages yet.'}
                 </p>
               </div>
@@ -90,7 +89,7 @@ export default function SessionList() {
                     e.preventDefault();
                     openDeleteModal(session.id);
                   }}
-                  className="mt-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  className="mt-1 text-red-400 hover:text-red-600 focus:outline-none"
                   aria-label={`Delete chat session: ${session.title}`}
                 >
                   <FiTrash2 className="w-4 h-4" />
@@ -102,7 +101,6 @@ export default function SessionList() {
           <p className="text-center text-gray-400">No chats found.</p>
         )}
       </div>
-
       {deleteSessionId && (
         <ConfirmationModal
           title="Delete Chat"

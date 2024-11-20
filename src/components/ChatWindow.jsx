@@ -2,15 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { useChat } from '../context/ChatContext';
 import MessageBubble from './MessageBubble';
 import { fetchChatResponse, fetchImageGeneration } from '../utils/apiClient';
-import Header from './Header';
-import AgentCard from './AgentCard';
 import ChatControls from './ChatControls';
 import ChatInput from './ChatInput';
-import { FiSettings, FiLoader } from 'react-icons/fi';
-import styles from './ChatWindow.module.scss';
 import ImageGenerationLoader from './ImageGenerationLoader';
 import ApiKeyModal from './ApiKeyModal';
 import { useSessionStorage } from '../hooks/useSessionStorage';
+import WelcomeScreen from './WelcomeScreen';
+import styles from './ChatWindow.module.scss';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -28,22 +26,25 @@ export default function ChatWindow() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   };
 
-  // Scroll on messages change or active session change
   useEffect(() => {
     if (activeSession?.messages?.length > 0) {
       scrollToBottom();
     }
   }, [activeSession?.messages]);
 
-  // Scroll when switching sessions
   useEffect(() => {
     if (state.activeSessionId) {
       scrollToBottom();
     }
   }, [state.activeSessionId]);
-  
-  const handleSubmit = async (message) => {
-    if (!message.trim() || !activeSession) return;
+
+  const handleSubmit = async (message, type = 'text') => {
+    if (!apiKey) {
+      dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
+      return;
+    }
+    
+    if (!message.trim() || !activeSession || isLoading) return;
     
     const userMessage = {
       role: 'user',
@@ -100,6 +101,11 @@ export default function ChatWindow() {
   };
 
   const handleImageGeneration = async (prompt) => {
+    if (!apiKey) {
+      dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
+      return;
+    }
+
     if (!prompt.trim() || !activeSession) return;
     
     setIsGeneratingImage(true);
@@ -265,11 +271,7 @@ export default function ChatWindow() {
   }, [apiKey, dispatch]);
 
   if (!activeSession) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <p className="text-gray-500">Select or create a chat to get started</p>
-      </div>
-    );
+    return <WelcomeScreen />;
   }
 
   return (
