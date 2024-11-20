@@ -17,7 +17,9 @@ const initialState = {
     writingStyle: 'default',
     language: 'default',
     contextWindow: 10 // Number of messages chat history for AI to consider
-  }
+  },
+  apiKey: null,
+  showApiKeyModal: false
 };
 
 function chatReducer(state, action) {
@@ -91,6 +93,16 @@ function chatReducer(state, action) {
       return {
         ...state,
         sessions: updatedSessions
+      };
+    case 'SET_API_KEY':
+      return {
+        ...state,
+        apiKey: action.payload
+      };
+    case 'TOGGLE_API_KEY_MODAL':
+      return {
+        ...state,
+        showApiKeyModal: action.payload
       };
     default:
       return state;

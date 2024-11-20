@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
-  if (!process.env.OPENAI_API_KEY) {
+  const apiKey = request.headers.get('x-api-key');
+  
+  if (!apiKey) {
     return NextResponse.json(
-      { error: 'OpenAI API key is not configured' },
-      { status: 500 }
+      { error: 'OpenAI API key is required' },
+      { status: 401 }
     );
   }
 
@@ -45,7 +47,7 @@ export async function POST(request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',

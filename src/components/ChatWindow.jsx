@@ -9,6 +9,8 @@ import ChatInput from './ChatInput';
 import { FiSettings, FiLoader } from 'react-icons/fi';
 import styles from './ChatWindow.module.scss';
 import ImageGenerationLoader from './ImageGenerationLoader';
+import ApiKeyModal from './ApiKeyModal';
+import { useSessionStorage } from '../hooks/useSessionStorage';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -20,7 +22,8 @@ export default function ChatWindow() {
   const activeSession = state.sessions.find(s => s.id === state.activeSessionId);
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [showControls, setShowControls] = useState(false);
-  
+  const [apiKey] = useSessionStorage('OPENAI_API_KEY', '');
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   };
@@ -255,6 +258,12 @@ export default function ChatWindow() {
     }
   };
 
+  useEffect(() => {
+    if (!apiKey) {
+      dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
+    }
+  }, [apiKey, dispatch]);
+
   if (!activeSession) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -264,49 +273,55 @@ export default function ChatWindow() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full relative bg-gray-50">
-      <div className={`flex-1 overflow-y-auto p-6 ${styles.mainChatContainer}`}>
-        <div className="space-y-6">
-          {activeSession.messages.map((message, index) => (
-            <MessageBubble 
-              key={message.timestamp} 
-              message={message}
-              previousMessage={index > 0 ? activeSession.messages[index - 1] : null}
-            />
-          ))}
-        </div>
-        <div ref={messagesEndRef} />
-      </div>
-
-      {isProcessing && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 flex items-center space-x-4">
-            <FiLoader className="animate-spin text-xl text-blue-500" />
-            <span className="text-gray-700 font-medium">Processing your request...</span>
+    <>
+      <ApiKeyModal 
+        isOpen={state.showApiKeyModal} 
+        onClose={() => dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: false })}
+      />
+      <div className="flex-1 flex flex-col h-full relative bg-gray-50">
+        <div className={`flex-1 overflow-y-auto p-6 ${styles.mainChatContainer}`}>
+          <div className="space-y-6">
+            {activeSession.messages.map((message, index) => (
+              <MessageBubble 
+                key={message.timestamp} 
+                message={message}
+                previousMessage={index > 0 ? activeSession.messages[index - 1] : null}
+              />
+            ))}
           </div>
+          <div ref={messagesEndRef} />
         </div>
-      )}
 
-      <div className="border-t bg-white p-4 shadow-lg">
-        {showControls && (
-          <div className="mb-4">
-            <ChatControls 
-              settings={state.settings}
-              onSettingsChange={handleSettingsChange}
-            />
+        {isProcessing && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 flex items-center space-x-4">
+              <FiLoader className="animate-spin text-xl text-blue-500" />
+              <span className="text-gray-700 font-medium">Processing your request...</span>
+            </div>
           </div>
         )}
-        <ChatInput 
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-          onImageUpload={handleImageUpload}
-          onFileUpload={handleFileUpload}
-          onImageGenerate={handleImageGeneration}
-          isProcessingFile={isProcessing}
-          isGeneratingImage={isGeneratingImage}
-          onToggleControls={() => setShowControls(!showControls)}
-        />
+
+        <div className="border-t bg-white p-4 shadow-lg">
+          {showControls && (
+            <div className="mb-4">
+              <ChatControls 
+                settings={state.settings}
+                onSettingsChange={handleSettingsChange}
+              />
+            </div>
+          )}
+          <ChatInput 
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            onImageUpload={handleImageUpload}
+            onFileUpload={handleFileUpload}
+            onImageGenerate={handleImageGeneration}
+            isProcessingFile={isProcessing}
+            isGeneratingImage={isGeneratingImage}
+            onToggleControls={() => setShowControls(!showControls)}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
