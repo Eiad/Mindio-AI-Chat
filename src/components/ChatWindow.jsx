@@ -307,7 +307,6 @@ export default function ChatWindow() {
           onToggleControls={() => setShowControls(!showControls)}
         />
       </div>
-      {isGeneratingImage && <ImageGenerationLoader />}
     </div>
   );
 }
