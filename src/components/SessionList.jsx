@@ -42,11 +42,11 @@ export default function SessionList() {
       <div className="flex flex-col items-stretch p-4 border-b border-gray-700 space-y-4">
         <button
           onClick={handleCreateSession}
-          className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+          className="flex items-center justify-center space-x-2 px-6 py-2.5 bg-[#4B4B4B] hover:bg-[#3D3D3D] text-white rounded-xl shadow-sm transition-all duration-200 w-full"
           aria-label="Create New Chat"
         >
-          <FiPlus className="w-5 h-5" />
-          <span className="font-semibold">New Chat</span>
+          <span className="text-xl">💭</span>
+          <span className="font-medium">New Chat</span>
         </button>
         <div className="relative w-full">
           <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300" />

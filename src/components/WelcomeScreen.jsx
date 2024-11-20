@@ -50,11 +50,11 @@ export default function WelcomeScreen() {
 
       <button
         onClick={handleCreateSession}
-        className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 mt-8"
+        className="flex items-center justify-center space-x-2 px-6 py-2.5 bg-[#4B4B4B] hover:bg-[#3D3D3D] text-white rounded-xl shadow-sm transition-all duration-200 w-full max-w-xs"
         aria-label="Create New Chat"
       >
-        <FiPlus className="w-5 h-5" />
-        <span className="font-semibold">Start a New Chat</span>
+        <span className="text-xl">💭</span>
+        <span className="font-medium">New Chat</span>
       </button>
     </div>
   );
