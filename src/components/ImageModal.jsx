@@ -13,7 +13,7 @@ export default function ImageModal({ imageUrl, isOpen, onClose }) {
           onClick={onClose}
           className="absolute -top-4 -right-4 w-8 h-8 bg-black rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800"
         >
-          <FiX className="w-5 h-5" />
+          <FiX className="w-5 h-5 text-white" />
         </button>
         <img
           src={imageUrl}
