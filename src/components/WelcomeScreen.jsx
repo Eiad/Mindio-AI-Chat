@@ -1,14 +1,11 @@
 import { FiMail, FiYoutube, FiCode, FiImage } from 'react-icons/fi';
 import { useChat } from '../context/ChatContext';
-import { useRouter } from 'next/navigation';
 
 export default function WelcomeScreen() {
   const { createSession } = useChat();
-  const router = useRouter();
 
   const handleCreateSession = () => {
-    const newSessionId = createSession();
-    router.push(`/chat/${newSessionId}`);
+    createSession();
   };
 
   const agents = [

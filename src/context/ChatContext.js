@@ -18,10 +18,10 @@ const initialState = {
     tone: 'default',
     writingStyle: 'default',
     language: 'default',
-    contextWindow: 10 // Number of messages chat history for AI to consider
+    contextWindow: 10, // Number of messages chat history for AI to consider
   },
   apiKey: null,
-  showApiKeyModal: false
+  showApiKeyModal: false,
 };
 
 function chatReducer(state, action) {
@@ -30,28 +30,31 @@ function chatReducer(state, action) {
       return {
         ...state,
         sessions: action.payload,
-        activeSessionId: action.payload[0]?.id || null
+        activeSessionId: action.payload[0]?.id || null,
       };
     case 'CREATE_SESSION':
       const newSession = action.payload;
       storage.saveSession(newSession);
       return {
         ...state,
-        sessions: [...state.sessions, newSession]
+        sessions: [...state.sessions, newSession],
+        activeSessionId: newSession.id, // Set the new session as active
       };
     case 'DELETE_SESSION':
       storage.deleteSession(action.payload);
+      const remainingSessions = state.sessions.filter(s => s.id !== action.payload);
       return {
         ...state,
-        sessions: state.sessions.filter(s => s.id !== action.payload),
-        activeSessionId: state.activeSessionId === action.payload
-          ? state.sessions[0]?.id
-          : state.activeSessionId
+        sessions: remainingSessions,
+        activeSessionId:
+          state.activeSessionId === action.payload
+            ? remainingSessions[0]?.id || null
+            : state.activeSessionId,
       };
     case 'SET_ACTIVE_SESSION':
       return {
         ...state,
-        activeSessionId: action.payload
+        activeSessionId: action.payload,
       };
     case 'ADD_MESSAGE':
       const messageSession = state.sessions.find(s => s.id === state.activeSessionId);
@@ -61,50 +64,50 @@ function chatReducer(state, action) {
         ...action.payload,
         id: action.payload.messageId || Date.now().toString(),
         parentMessageId: action.payload.parentMessageId || null,
-        contextType: action.payload.contextType || 'chat'
+        contextType: action.payload.contextType || 'chat',
       };
-      
+
       const updatedMessages = [...messageSession.messages, newMessage];
       const updatedSessionWithMessage = {
         ...messageSession,
         messages: updatedMessages,
-        lastContext: newMessage.contextType
+        lastContext: newMessage.contextType,
       };
-      
+
       storage.saveSession(updatedSessionWithMessage);
       return {
         ...state,
         sessions: state.sessions.map(s =>
           s.id === state.activeSessionId ? updatedSessionWithMessage : s
-        )
+        ),
       };
     case 'UPDATE_SETTINGS':
       return {
         ...state,
         settings: {
           ...state.settings,
-          ...action.payload
-        }
+          ...action.payload,
+        },
       };
     case 'UPDATE_SESSION_TITLE':
       const { sessionId, title } = action.payload;
-      const updatedSessions = state.sessions.map(s => 
+      const updatedSessions = state.sessions.map(s =>
         s.id === sessionId ? { ...s, title } : s
       );
       storage.saveSession(updatedSessions.find(s => s.id === sessionId));
       return {
         ...state,
-        sessions: updatedSessions
+        sessions: updatedSessions,
       };
     case 'SET_API_KEY':
       return {
         ...state,
-        apiKey: action.payload
+        apiKey: action.payload,
       };
     case 'TOGGLE_API_KEY_MODAL':
       return {
         ...state,
-        showApiKeyModal: action.payload
+        showApiKeyModal: action.payload,
       };
     default:
       return state;
@@ -116,16 +119,16 @@ export function ChatProvider({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Function to create a new session and return its ID
+  // Function to create a new session
   const createSession = () => {
     const newSession = {
       id: Date.now().toString(),
       messages: [],
       createdAt: new Date().toISOString(),
-      title: 'New Chat' // Default title; can be updated later
+      title: 'New Chat', // Default title; can be updated later
     };
     dispatch({ type: 'CREATE_SESSION', payload: newSession });
-    return newSession.id;
+    // Navigation is handled in useEffect
   };
 
   useEffect(() => {

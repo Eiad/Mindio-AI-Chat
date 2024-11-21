@@ -1,15 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
-import { ChatProvider, useChat } from '../../../context/ChatContext';
 import ChatWindow from '../../../components/ChatWindow';
 import SessionList from '../../../components/SessionList';
 import { FiMenu } from 'react-icons/fi';
 import ConfirmationModal from '../../../components/ConfirmationModal';
+import { useChat } from '../../../context/ChatContext';
 
 export default function ChatPage() {
-  const params = useParams();
   const { dispatch } = useChat();
   const [isSessionListOpen, setIsSessionListOpen] = useState(false);
   const [deleteSessionId, setDeleteSessionId] = useState(null);
