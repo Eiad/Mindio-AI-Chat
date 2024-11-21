@@ -326,6 +326,8 @@ export default function ChatWindow() {
           </div>
         )}
 
+        {isGeneratingImage && <ImageGenerationLoader />}
+
         <div className="border-t bg-white p-4 shadow-lg">
           {showControls && (
             <div className="mb-4">

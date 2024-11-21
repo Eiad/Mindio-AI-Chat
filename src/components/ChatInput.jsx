@@ -77,9 +77,12 @@ export default function ChatInput({
 
   const handleImageGeneration = async () => {
     if (!input.trim() || isGeneratingImage) return;
+
+    const prompt = input;
+    setInput('');
+
     try {
-      await onImageGenerate(input);
-      setInput('');
+      await onImageGenerate(prompt);
     } catch (error) {
       console.error('Image generation failed:', error);
     }
