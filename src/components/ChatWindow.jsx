@@ -169,10 +169,17 @@ export default function ChatWindow() {
     formData.append('file', file);
     formData.append('text', text || 'Analyze this image');
 
+    // Create a file reader to get image preview
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    
     const userMessage = {
       role: 'user',
-      content: `Analyzing image: ${file.name}`,
-      type: 'system',
+      content: text || 'Analyze this image',
+      type: 'image',
+      imageUrl: await new Promise(resolve => {
+        reader.onloadend = () => resolve(reader.result);
+      }),
       timestamp: new Date().toISOString(),
       messageId: Date.now().toString()
     };
