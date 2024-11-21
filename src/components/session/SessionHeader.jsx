@@ -3,6 +3,11 @@ import { FiSearch } from 'react-icons/fi';
 export default function SessionHeader({ onCreateSession, searchTerm, onSearchChange }) {
   return (
     <div className="flex flex-col items-stretch p-4 border-b border-gray-700 space-y-4">
+      <img 
+        src="https://placehold.co/300x60/1e2837/ffffff.jpg?text=Mindio&font=Raleway" 
+        alt="Logo" 
+        className="mb-2" 
+      />
       <button
         onClick={onCreateSession}
         className="flex items-center justify-center space-x-2 px-6 py-2.5 bg-[#4B4B4B] hover:bg-[#3D3D3D] text-white rounded-xl shadow-sm transition-all duration-200 w-full"
