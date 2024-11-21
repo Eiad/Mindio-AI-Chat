@@ -158,33 +158,45 @@ export default function ChatWindow() {
   };
 
   const handleImageUpload = async (file, text) => {
+    const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
+    if (!apiKey) {
+      dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
+      return;
+    }
+
     setIsProcessing(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('text', text || 'Analyze this image');
 
-    try {
-      const userMessage = {
-        role: 'user',
-        content: text || 'Analyzing image...',
-        type: 'text',
-        timestamp: new Date().toISOString(),
-        messageId: Date.now().toString()
-      };
-      
-      dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
+    const userMessage = {
+      role: 'user',
+      content: `Analyzing image: ${file.name}`,
+      type: 'system',
+      timestamp: new Date().toISOString(),
+      messageId: Date.now().toString()
+    };
 
+    dispatch({
+      type: 'ADD_MESSAGE',
+      payload: userMessage
+    });
+
+    try {
       const response = await fetch('/api/process-image', {
         method: 'POST',
+        headers: {
+          'X-API-KEY': apiKey
+        },
         body: formData,
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Processing failed');
+        throw new Error(data.error || 'Failed to process image');
       }
 
-      const data = await response.json();
-      
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
@@ -202,7 +214,7 @@ export default function ChatWindow() {
         type: 'ADD_MESSAGE',
         payload: {
           role: 'assistant',
-          content: 'Failed to process image. Please try again.',
+          content: error.message || 'Failed to process image. Please try again.',
           type: 'error',
           timestamp: new Date().toISOString()
         }
@@ -213,6 +225,12 @@ export default function ChatWindow() {
   };
 
   const handleFileUpload = async (file, question) => {
+    const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
+    if (!apiKey) {
+      dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
+      return;
+    }
+
     setIsProcessing(true);
     const formData = new FormData();
     formData.append('file', file);
@@ -221,6 +239,9 @@ export default function ChatWindow() {
     try {
       const response = await fetch('/api/process-pdf', {
         method: 'POST',
+        headers: {
+          'X-API-KEY': apiKey
+        },
         body: formData,
       });
 

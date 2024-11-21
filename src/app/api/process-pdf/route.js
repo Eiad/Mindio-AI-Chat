@@ -9,10 +9,12 @@ export const config = {
 };
 
 export async function POST(request) {
-  if (!process.env.OPENAI_API_KEY) {
+  const apiKey = request.headers.get('x-api-key');
+  
+  if (!apiKey) {
     return NextResponse.json(
-      { error: 'OpenAI API key is not configured' },
-      { status: 500 }
+      { error: 'OpenAI API key is required' },
+      { status: 401 }
     );
   }
 
@@ -40,22 +42,12 @@ export async function POST(request) {
 
     let textContent;
     try {
-      const pdfData = await pdfParse(buffer, {
-        max: 50, // Maximum pages to parse
-        version: 'v2.0.550'
-      });
+      const pdfData = await pdfParse(buffer);
       textContent = pdfData.text;
     } catch (pdfError) {
       console.error('PDF parsing error:', pdfError);
       return NextResponse.json(
-        { error: 'Unable to read PDF content. The file might be corrupted or password protected.' },
-        { status: 422 }
-      );
-    }
-
-    if (!textContent || textContent.trim().length === 0) {
-      return NextResponse.json(
-        { error: 'No readable text content found in the PDF' },
+        { error: 'Unable to read PDF content' },
         { status: 422 }
       );
     }
@@ -66,7 +58,7 @@ export async function POST(request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-4-turbo-preview',

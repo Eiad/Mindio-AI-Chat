@@ -1,6 +1,6 @@
 export async function fetchChatResponse(prompt, settings, messages = []) {
   const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
-  if (!apiKey || apiKey === 'undefined' || apiKey === 'null') {
+  if (!apiKey) {
     throw new Error('Please enter your OpenAI API key to continue');
   }
 
@@ -40,10 +40,16 @@ export async function fetchChatResponse(prompt, settings, messages = []) {
 }
 
 export async function fetchImageGeneration(prompt) {
+  const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
+  if (!apiKey) {
+    throw new Error('Please enter your OpenAI API key to continue');
+  }
+
   const response = await fetch('/api/generate-image', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-API-KEY': apiKey
     },
     body: JSON.stringify({ prompt }),
   });

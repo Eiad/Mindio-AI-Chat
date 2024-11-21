@@ -11,6 +11,12 @@ export default function ImageUpload() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
+    if (!apiKey) {
+      dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
+      return;
+    }
+
     setIsProcessing(true);
     const formData = new FormData();
     formData.append('file', file);
@@ -31,14 +37,17 @@ export default function ImageUpload() {
 
       const response = await fetch('/api/process-image', {
         method: 'POST',
+        headers: {
+          'X-API-KEY': apiKey
+        },
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Processing failed');
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process image');
+      }
 
       dispatch({
         type: 'ADD_MESSAGE',
@@ -61,7 +70,7 @@ export default function ImageUpload() {
         type: 'ADD_MESSAGE',
         payload: {
           role: 'assistant',
-          content: 'Failed to process image. Please try again.',
+          content: error.message || 'Failed to process image. Please try again.',
           type: 'error',
           timestamp: new Date().toISOString()
         }
@@ -72,12 +81,30 @@ export default function ImageUpload() {
   };
 
   return (
-    <input
-      type="file"
-      accept="image/*"
-      onChange={handleFileChange}
-      ref={fileInputRef}
-      disabled={isProcessing}
-    />
+    <div className="relative">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+        id="image-upload"
+      />
+      <label
+        htmlFor="image-upload"
+        className="cursor-pointer inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none"
+      >
+        {isProcessing ? (
+          <div className="flex items-center space-x-2">
+            <FiLoader className="animate-spin" />
+            <span>Processing...</span>
+          </div>
+        ) : (
+          <>
+            🖼️ Upload Image
+          </>
+        )}
+      </label>
+    </div>
   );
 }

@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server';
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(request) {
-  if (!process.env.OPENAI_API_KEY) {
+  const apiKey = request.headers.get('x-api-key');
+  
+  if (!apiKey) {
     return NextResponse.json(
-      { error: 'OpenAI API key is not configured' },
-      { status: 500 }
+      { error: 'OpenAI API key is required' },
+      { status: 401 }
     );
   }
 
@@ -27,7 +35,7 @@ export async function POST(request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
@@ -52,10 +60,16 @@ export async function POST(request) {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to process image');
+      return NextResponse.json(
+        { error: data.error?.message || 'Failed to process image' },
+        { status: response.status }
+      );
     }
 
-    return NextResponse.json({ analysis: data.choices[0].message.content });
+    return NextResponse.json({ 
+      analysis: data.choices[0].message.content,
+      status: 'success'
+    });
   } catch (error) {
     console.error('Image processing error:', error);
     return NextResponse.json(

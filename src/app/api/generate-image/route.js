@@ -1,23 +1,24 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
-  if (!process.env.OPENAI_API_KEY) {
+  const apiKey = request.headers.get('x-api-key');
+  
+  if (!apiKey) {
     return NextResponse.json(
-      { error: 'OpenAI API key is not configured' },
-      { status: 500 }
+      { error: 'OpenAI API key is required' },
+      { status: 401 }
     );
   }
 
   try {
     const { prompt } = await request.json();
-    
     const enhancedPrompt = `${prompt}`;
     
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "dall-e-3",
