@@ -49,13 +49,13 @@ export default function SessionList() {
           <span className="font-medium">New Chat</span>
         </button>
         <div className="relative w-full">
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300" />
+          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
           <input
             type="text"
             placeholder="Search chats..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-primary-light border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-white placeholder-gray-300"
+            className="w-full pl-10 pr-4 py-2 bg-primary-light border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-black placeholder-gray-400"
             aria-label="Search Chats"
           />
         </div>
