@@ -32,36 +32,30 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-hidden">
+      <div
+        className={`
+          fixed inset-y-0 left-0 w-72 bg-white shadow-md z-40
+          transform transition-transform duration-300 ease-in-out
+          ${isSessionListOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:relative md:translate-x-0
+          ${isSessionListOpen ? 'block' : 'hidden md:block'}
+        `}
+      >
+        <SessionList onDeleteSession={handleDeleteSession} />
+      </div>
+
       {!isSessionListOpen && (
         <button
           onClick={toggleSessionList}
-          className="md:hidden absolute top-4 left-4 z-40 w-10 h-10 flex items-center justify-center text-2xl text-gray-700 focus:outline-none bg-white rounded-full shadow-lg"
+          className="md:hidden fixed top-4 left-4 z-50 w-10 h-10 flex items-center justify-center text-2xl text-gray-700 focus:outline-none bg-white rounded-full shadow-lg"
           aria-label="Toggle Session List"
         >
           <FiMenu />
         </button>
       )}
 
-      <div
-        className={`
-          fixed inset-y-0 left-0 w-72 bg-white shadow-md z-50
-          transform transition-transform duration-300 ease-in-out
-          ${isSessionListOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0 md:relative
-        `}
-      >
-        <SessionList onDeleteSession={handleDeleteSession} />
-      </div>
-
-      {isSessionListOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
-          onClick={toggleSessionList}
-        ></div>
-      )}
-
-      <div className="flex-1">
+      <div className="flex-1 relative overflow-hidden w-full">
         <ChatWindow />
       </div>
 
