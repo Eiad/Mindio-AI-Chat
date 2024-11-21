@@ -1,8 +1,6 @@
-import { useRouter } from 'next/navigation';
-import { FiPlus } from 'react-icons/fi';
-import { MdChat } from 'react-icons/md';
-import { FaBrain, FaLightbulb, FaQuestionCircle } from 'react-icons/fa';
+import { FiMail, FiYoutube, FiCode, FiImage } from 'react-icons/fi';
 import { useChat } from '../context/ChatContext';
+import { useRouter } from 'next/navigation';
 
 export default function WelcomeScreen() {
   const { createSession } = useChat();
@@ -13,49 +11,62 @@ export default function WelcomeScreen() {
     router.push(`/chat/${newSessionId}`);
   };
 
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center space-y-8 p-6">
-      <MdChat className="w-24 h-24 text-indigo-600" />
-      <h2 className="text-3xl font-semibold text-gray-800">
-        Welcome to Mindio!
-      </h2>
-      <p className="text-gray-600 text-center max-w-lg">
-        Mindio is your personal AI assistant, here to help you brainstorm ideas,
-        answer questions, and much more. Start a new chat to unlock endless possibilities!
-      </p>
+  const agents = [
+    {
+      icon: <FiYoutube className="w-8 h-8 text-red-500" />,
+      title: "YouTube Content Writer",
+      description: "A YouTube content writer specialized in creating engaging and high-performing video scripts"
+    },
+    {
+      icon: <FiMail className="w-8 h-8 text-yellow-500" />,
+      title: "Cold Email Template",
+      description: "An email marketing expert specializing in cold emails. I have helped many businesses improve their outreach"
+    },
+    {
+      icon: <FiCode className="w-8 h-8 text-blue-500" />,
+      title: "Pro Coder",
+      description: "Help you write code without overexplain things too much using only its internal knowledge"
+    },
+    {
+      icon: <FiImage className="w-8 h-8 text-green-500" />,
+      title: "Blog Image Generator",
+      description: "A blog image generator specialized in creating modern vector illustrations for your content"
+    }
+  ];
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-        <div className="flex flex-col items-center">
-          <FaBrain className="w-12 h-12 text-red-500 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-800">Brainstorm Ideas</h3>
-          <p className="text-gray-600 text-center">
-            Need inspiration? Let Mindio help you generate creative ideas.
-          </p>
+  return (
+    <div className="flex-1 flex flex-col items-center p-8 max-w-5xl mx-auto w-full">
+      <div className="w-full space-y-8">
+        <div className="flex justify-center mb-12">
+          <img
+            src="/assets/main-logo.png"
+            alt="Main Logo"
+            className="h-16 w-auto"
+          />
         </div>
-        <div className="flex flex-col items-center">
-          <FaLightbulb className="w-12 h-12 text-yellow-500 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-800">Get Answers</h3>
-          <p className="text-gray-600 text-center">
-            Have questions? Mindio provides accurate answers quickly.
-          </p>
-        </div>
-        <div className="flex flex-col items-center">
-          <FaQuestionCircle className="w-12 h-12 text-green-500 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-800">Learn New Things</h3>
-          <p className="text-gray-600 text-center">
-            Explore new topics and expand your knowledge with Mindio.
-          </p>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {agents.map((agent, index) => (
+              <button
+                key={index}
+                onClick={handleCreateSession}
+                className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-all text-left"
+              >
+                <div className="p-2 bg-gray-50 rounded-lg">
+                  {agent.icon}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-900">{agent.title}</h3>
+                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                    {agent.description}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-
-      <button
-        onClick={handleCreateSession}
-        className="flex items-center justify-center space-x-2 px-6 py-2.5 bg-[#4B4B4B] hover:bg-[#3D3D3D] text-white rounded-xl shadow-sm transition-all duration-200 w-full max-w-xs"
-        aria-label="Create New Chat"
-      >
-        <span className="text-xl">💭</span>
-        <span className="font-medium">New Chat</span>
-      </button>
     </div>
   );
 }
