@@ -12,17 +12,40 @@ export default function MessageBubble({ message, previousMessage }) {
     if (message.type === 'image' && isUser) {
       return (
         <div className="space-y-3">
-          <p className="whitespace-pre-wrap leading-relaxed">
+          <p className="whitespace-pre-wrap leading-relaxed mb-2">
             {message.content}
           </p>
           <img 
             src={message.imageUrl} 
-            alt="Uploaded"
+            alt="Uploaded image"
             className="rounded-lg max-w-[200px] h-auto cursor-pointer hover:opacity-90 transition-opacity"
             onClick={() => setIsImageModalOpen(true)}
           />
           <ImageModal
             imageUrl={message.imageUrl}
+            isOpen={isImageModalOpen}
+            onClose={() => setIsImageModalOpen(false)}
+          />
+        </div>
+      );
+    }
+
+    if (message.type === 'image' && !isUser) {
+      return (
+        <div className="space-y-3">
+          <img 
+            src={message.content} 
+            alt={message.revisedPrompt || "Generated image"}
+            className="rounded-lg max-w-[100%] h-auto cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => setIsImageModalOpen(true)}
+          />
+          {message.revisedPrompt && (
+            <p className="text-sm text-gray-500 italic">
+              {message.revisedPrompt}
+            </p>
+          )}
+          <ImageModal
+            imageUrl={message.content}
             isOpen={isImageModalOpen}
             onClose={() => setIsImageModalOpen(false)}
           />

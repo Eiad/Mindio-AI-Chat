@@ -4,13 +4,11 @@ import { useChat } from '../context/ChatContext';
 import { FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import Avatar from './Avatar';
-import ConfirmationModal from './ConfirmationModal';
 
-export default function SessionList() {
+export default function SessionList({ onDeleteSession }) {
   const { state, createSession, dispatch } = useChat();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [deleteSessionId, setDeleteSessionId] = useState(null);
 
   const handleCreateSession = () => {
     const newSessionId = createSession();
@@ -22,19 +20,9 @@ export default function SessionList() {
     (session.messages[0]?.content && session.messages[0].content.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const openDeleteModal = (sessionId) => {
-    setDeleteSessionId(sessionId);
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteSessionId(null);
-  };
-
-  const confirmDeleteSession = () => {
-    if (deleteSessionId) {
-      dispatch({ type: 'DELETE_SESSION', payload: deleteSessionId });
-      closeDeleteModal();
-    }
+  const handleDeleteClick = (sessionId, e) => {
+    e.preventDefault();
+    onDeleteSession(sessionId);
   };
 
   return (
@@ -87,7 +75,7 @@ export default function SessionList() {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-                    openDeleteModal(session.id);
+                    handleDeleteClick(session.id, e);
                   }}
                   className="mt-1 text-red-400 hover:text-red-600 focus:outline-none"
                   aria-label={`Delete chat session: ${session.title}`}
@@ -101,14 +89,6 @@ export default function SessionList() {
           <p className="text-center text-gray-400">No chats found.</p>
         )}
       </div>
-      {deleteSessionId && (
-        <ConfirmationModal
-          title="Delete Chat"
-          message="Are you sure you want to delete this chat? This action cannot be undone."
-          onConfirm={confirmDeleteSession}
-          onCancel={closeDeleteModal}
-        />
-      )}
     </div>
   );
 }

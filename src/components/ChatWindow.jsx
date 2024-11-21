@@ -122,11 +122,20 @@ export default function ChatWindow() {
     
     try {
       const { imageUrl, revisedPrompt } = await fetchImageGeneration(prompt);
+      
+      // Convert blob URL to actual image URL if needed
+      let finalImageUrl = imageUrl;
+      if (imageUrl.startsWith('blob:')) {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        finalImageUrl = URL.createObjectURL(blob);
+      }
+
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
           role: 'assistant',
-          content: imageUrl,
+          content: finalImageUrl,
           type: 'image',
           revisedPrompt,
           timestamp: new Date().toISOString(),
@@ -141,7 +150,7 @@ export default function ChatWindow() {
         payload: {
           role: 'assistant',
           content: error.message || 'Failed to generate image. Please try again.',
-          type: 'text',
+          type: 'error',
           timestamp: new Date().toISOString(),
           parentMessageId: userMessage.messageId
         }

@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { storage } from '../utils/storage';
 import { useRouter, usePathname } from 'next/navigation';
