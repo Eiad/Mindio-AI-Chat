@@ -21,7 +21,8 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file');
-    const question = formData.get('question');
+    const userQuery = formData.get('text');
+    const smartPrompt = formData.get('smartPrompt');
 
     if (!file) {
       return NextResponse.json(
@@ -44,15 +45,30 @@ export async function POST(request) {
     try {
       const pdfData = await pdfParse(buffer);
       textContent = pdfData.text;
+
+      if (!textContent || textContent.trim().length === 0) {
+        throw new Error('No readable text content found in PDF');
+      }
     } catch (pdfError) {
       console.error('PDF parsing error:', pdfError);
       return NextResponse.json(
-        { error: 'Unable to read PDF content' },
+        { error: 'Unable to read PDF content. The file may be corrupted or password protected.' },
         { status: 422 }
       );
     }
 
-    const combinedPrompt = `${question}\n\n---\n\n${textContent}`;
+    const systemPrompt = `You are an AI assistant specialized in analyzing and processing PDF documents.
+    Your task is to understand and fulfill the user's specific request about the document.
+    Current request: "${userQuery}"
+    
+    Instructions for processing:
+    ${smartPrompt}
+    
+    Please ensure your response is:
+    1. Directly relevant to the user's request
+    2. Well-structured and easy to understand
+    3. Accurate to the document's content
+    4. Properly formatted for readability`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -65,11 +81,11 @@ export async function POST(request) {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant. Answer the user\'s query based on the PDF content provided.'
+            content: systemPrompt
           },
           {
             role: 'user',
-            content: combinedPrompt
+            content: textContent
           }
         ],
         max_tokens: 4000,

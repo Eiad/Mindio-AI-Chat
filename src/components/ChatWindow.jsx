@@ -231,7 +231,7 @@ export default function ChatWindow() {
     }
   };
 
-  const handleFileUpload = async (file, question) => {
+  const handleFileUpload = async (file, text) => {
     const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
@@ -241,7 +241,66 @@ export default function ChatWindow() {
     setIsProcessing(true);
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('question', question);
+    
+    // Create context-aware prompt
+    const userIntent = text.toLowerCase();
+    let smartPrompt;
+
+    // Handle translation requests
+    if (userIntent.includes('translate') || userIntent.includes('translation')) {
+      const targetLanguage = userIntent.includes('to ') ? 
+        userIntent.split('to ')[1].split(' ')[0] : 
+        'the requested language';
+      
+      smartPrompt = `Please translate the content of this PDF to ${targetLanguage}. 
+      Maintain the document's structure and formatting while providing an accurate translation.
+      If there are any technical terms or specific jargon, please provide appropriate translations 
+      while keeping the original meaning intact.`;
+    } 
+    // Handle summary requests
+    else if (userIntent.includes('summary') || userIntent.includes('summarize')) {
+      smartPrompt = `Please provide a comprehensive summary of this PDF document, focusing on:
+      1. Key points and main arguments
+      2. Important findings or conclusions
+      3. Significant data or statistics
+      4. Recommendations or action items
+      Please structure the summary in a clear, organized manner.`;
+    }
+    // Handle analysis requests
+    else if (userIntent.includes('analyze') || userIntent.includes('analysis')) {
+      smartPrompt = `Please provide a detailed analysis of this PDF document, including:
+      1. Main themes and concepts
+      2. Critical evaluation of the content
+      3. Key insights and implications
+      4. Supporting evidence and data
+      5. Potential applications or recommendations`;
+    }
+    // Default smart prompt for any other request
+    else {
+      smartPrompt = `Based on the user's request: "${text}", please:
+      1. Analyze the PDF content thoroughly
+      2. Focus on addressing the specific aspects mentioned in the request
+      3. Provide relevant information and insights
+      4. Include supporting evidence from the document
+      5. Structure the response in a clear, logical manner`;
+    }
+
+    formData.append('text', text);
+    formData.append('smartPrompt', smartPrompt);
+
+    const userMessage = {
+      role: 'user',
+      content: text,
+      type: 'pdf',
+      fileName: file.name,
+      timestamp: new Date().toISOString(),
+      messageId: Date.now().toString()
+    };
+
+    dispatch({
+      type: 'ADD_MESSAGE',
+      payload: userMessage
+    });
 
     try {
       const response = await fetch('/api/process-pdf', {
@@ -252,11 +311,12 @@ export default function ChatWindow() {
         body: formData,
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Processing failed');
+        throw new Error(data.error || 'Failed to process PDF');
       }
 
-      const data = await response.json();
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
@@ -264,6 +324,8 @@ export default function ChatWindow() {
           content: data.summary,
           type: 'text',
           timestamp: new Date().toISOString(),
+          parentMessageId: userMessage.messageId,
+          contextType: 'pdf-analysis'
         }
       });
     } catch (error) {
@@ -274,7 +336,7 @@ export default function ChatWindow() {
           role: 'assistant',
           content: error.message || 'Failed to process PDF. Please try again.',
           type: 'error',
-          timestamp: new Date().toISOString(),
+          timestamp: new Date().toISOString()
         }
       });
     } finally {

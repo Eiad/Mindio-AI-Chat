@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ImageModal from './ImageModal';
+import { FiFile } from 'react-icons/fi';
 
 export default function MessageBubble({ message, previousMessage }) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -25,6 +26,22 @@ export default function MessageBubble({ message, previousMessage }) {
             isOpen={isImageModalOpen}
             onClose={() => setIsImageModalOpen(false)}
           />
+        </div>
+      );
+    }
+
+    if (message.type === 'pdf' && isUser) {
+      return (
+        <div className="space-y-3">
+          <p className="whitespace-pre-wrap leading-relaxed">
+            {message.content}
+          </p>
+          <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-3 max-w-[200px]">
+            <FiFile className="w-5 h-5 text-gray-600" />
+            <span className="text-sm text-gray-600 truncate">
+              {message.fileName}
+            </span>
+          </div>
         </div>
       );
     }
