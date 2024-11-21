@@ -13,10 +13,10 @@ export default function ChatIndexPage() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-hidden">
       <div
         className={`
-          fixed inset-y-0 left-0 w-80 bg-white shadow-md z-40
+          fixed inset-y-0 left-0 w-72 bg-white shadow-md z-40
           transform transition-transform duration-300 ease-in-out
           ${isSessionListOpen ? 'translate-x-0' : '-translate-x-full'}
           md:relative md:translate-x-0
@@ -25,17 +25,7 @@ export default function ChatIndexPage() {
         <SessionList />
       </div>
 
-      {!isSessionListOpen && (
-        <button
-          onClick={toggleSessionList}
-          className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 flex items-center justify-center text-2xl text-gray-700 focus:outline-none bg-white rounded-full shadow-lg"
-          aria-label="Toggle Session List"
-        >
-          <FiMenu />
-        </button>
-      )}
-
-      <div className="flex-1">
+      <div className="flex-1 relative overflow-hidden">
         <ChatWindow />
       </div>
     </div>

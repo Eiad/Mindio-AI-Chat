@@ -45,7 +45,7 @@ export default function ChatPage() {
 
       <div
         className={`
-          fixed inset-y-0 left-0 w-80 bg-white shadow-md z-50
+          fixed inset-y-0 left-0 w-72 bg-white shadow-md z-50
           transform transition-transform duration-300 ease-in-out
           ${isSessionListOpen ? 'translate-x-0' : '-translate-x-full'}
           md:translate-x-0 md:relative

@@ -382,17 +382,19 @@ export default function ChatWindow() {
         onClose={() => dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: false })}
       />
       <div className="flex-1 flex flex-col h-full relative bg-gray-50">
-        <div className={`flex-1 overflow-y-auto p-6 ${styles.mainChatContainer}`}>
-          <div className="space-y-6">
-            {activeSession.messages.map((message, index) => (
-              <MessageBubble 
-                key={message.timestamp} 
-                message={message}
-                previousMessage={index > 0 ? activeSession.messages[index - 1] : null}
-              />
-            ))}
+        <div className="flex-1 overflow-y-auto">
+          <div className={styles.mainChatContainer}>
+            <div className="space-y-6 py-6">
+              {activeSession.messages.map((message, index) => (
+                <MessageBubble 
+                  key={message.timestamp} 
+                  message={message}
+                  previousMessage={index > 0 ? activeSession.messages[index - 1] : null}
+                />
+              ))}
+            </div>
+            <div ref={messagesEndRef} />
           </div>
-          <div ref={messagesEndRef} />
         </div>
 
         {isProcessing && (
@@ -406,7 +408,7 @@ export default function ChatWindow() {
 
         {isGeneratingImage && <ImageGenerationLoader />}
 
-        <div className="p-4">
+        <div className="p-1">
           {showControls && (
             <div className="mb-4">
               <ChatControls 
