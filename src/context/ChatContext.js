@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { storage } from '../utils/storage';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -119,38 +119,42 @@ export function ChatProvider({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Function to create a new session
-  const createSession = () => {
+  const createSession = useCallback(() => {
     const newSession = {
       id: Date.now().toString(),
       messages: [],
       createdAt: new Date().toISOString(),
-      title: 'New Chat', // Default title; can be updated later
+      title: 'New Chat',
     };
+
     dispatch({ type: 'CREATE_SESSION', payload: newSession });
-    // Navigation is handled in useEffect
-  };
+    
+    // Force a synchronous state update before navigation
+    Promise.resolve().then(() => {
+      router.push(`/chat/${newSession.id}`);
+    });
+    
+    return newSession.id;
+  }, [router]);
 
   useEffect(() => {
     const sessions = storage.getSessions();
-    dispatch({ type: 'INIT_SESSIONS', payload: sessions });
+    if (sessions.length > 0) {
+      dispatch({ type: 'INIT_SESSIONS', payload: sessions });
+    }
   }, []);
 
+  // Remove the pathname effect that was causing the navigation loop
   useEffect(() => {
-    if (state.activeSessionId) {
-      router.push(`/chat/${state.activeSessionId}`, { shallow: true });
-    }
-  }, [state.activeSessionId, router]);
-
-  useEffect(() => {
+    if (!pathname || pathname === '/chat') return;
+    
     const sessionId = pathname.split('/').pop();
-    if (sessionId && sessionId !== state.activeSessionId) {
-      const sessionExists = state.sessions.some(s => s.id === sessionId);
-      if (sessionExists) {
-        dispatch({ type: 'SET_ACTIVE_SESSION', payload: sessionId });
-      }
+    const sessionExists = state.sessions.some(s => s.id === sessionId);
+    
+    if (sessionExists) {
+      dispatch({ type: 'SET_ACTIVE_SESSION', payload: sessionId });
     }
-  }, [pathname, state.sessions, state.activeSessionId]);
+  }, [pathname, state.sessions]);
 
   return (
     <ChatContext.Provider value={{ state, dispatch, createSession }}>

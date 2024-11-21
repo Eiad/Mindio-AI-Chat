@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import { useChat } from '../context/ChatContext';
-import { useRouter } from 'next/navigation';
 import SessionHeader from './session/SessionHeader';
 import SessionListItem from './session/SessionListItem';
 
 export default function SessionList({ onDeleteSession }) {
   const { state, createSession } = useChat();
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const handleCreateSession = () => {
+  const handleCreateSession = (e) => {
+    e?.preventDefault?.();
     const newSessionId = createSession();
-    router.push(`/chat/${newSessionId}`);
+    return false; // Prevent any default actions
   };
 
   const filteredSessions = state.sessions.filter(session =>
