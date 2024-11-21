@@ -11,7 +11,7 @@ export default function ImageModal({ imageUrl, isOpen, onClose }) {
       <div className="relative max-w-[90vw] max-h-[90vh]">
         <button
           onClick={onClose}
-          className="absolute -top-4 -right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100"
+          className="absolute -top-4 -right-4 w-8 h-8 bg-black rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800"
         >
           <FiX className="w-5 h-5" />
         </button>
