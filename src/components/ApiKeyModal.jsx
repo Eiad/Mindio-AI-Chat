@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSessionStorage } from '../hooks/useSessionStorage';
 import { FiEye, FiEyeOff, FiX, FiCheckCircle, FiLoader } from 'react-icons/fi';
 
@@ -9,6 +9,12 @@ export default function ApiKeyModal({ isOpen, onClose }) {
   const [error, setError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && apiKey) {
+      setInputValue(apiKey);
+    }
+  }, [isOpen, apiKey]);
 
   if (!isOpen) return null;
 
@@ -49,6 +55,8 @@ export default function ApiKeyModal({ isOpen, onClose }) {
       setTimeout(() => {
         setIsSuccess(false);
         onClose();
+        // Force a window reload to ensure all components pick up the new API key
+        window.location.reload();
       }, 1500);
     } catch (error) {
       setIsValidating(false);
