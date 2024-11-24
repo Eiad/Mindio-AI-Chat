@@ -8,6 +8,7 @@ import ImageGenerationLoader from './ImageGenerationLoader';
 import ApiKeyModal from './ApiKeyModal';
 import { useSessionStorage } from '../hooks/useSessionStorage';
 import WelcomeScreen from './WelcomeScreen';
+import ActiveSessionWelcome from './ActiveSessionWelcome';
 import styles from './ChatWindow.module.scss';
 import { FiLoader } from 'react-icons/fi';
 
@@ -371,8 +372,47 @@ export default function ChatWindow() {
     }
   }, [dispatch]);
 
-  if (!activeSession) {
-    return <WelcomeScreen />;
+  if (!activeSession || (activeSession && activeSession.messages.length === 0)) {
+    return (
+      <div className="flex flex-col h-full">        
+        <div className="flex-1">
+          {!activeSession ? (
+            <WelcomeScreen />
+          ) : (
+            <ActiveSessionWelcome />
+          )}
+        </div>
+        
+        <div className="w-full">
+          <ApiKeyModal 
+            isOpen={state.showApiKeyModal} 
+            onClose={() => dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: false })}
+          />
+          <div className="p-1">
+            {showControls && (
+              <div className="mb-4">
+                <ChatControls 
+                  settings={state.settings}
+                  onSettingsChange={handleSettingsChange}
+                />
+              </div>
+            )}
+            {activeSession && (
+              <ChatInput 
+                onSubmit={handleSubmit}
+                isLoading={isLoading}
+                onImageUpload={handleImageUpload}
+                onFileUpload={handleFileUpload}
+                onImageGenerate={handleImageGeneration}
+                isProcessingFile={isProcessing}
+                isGeneratingImage={isGeneratingImage}
+                onToggleControls={() => setShowControls(!showControls)}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
