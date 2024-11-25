@@ -41,8 +41,8 @@ export default function ActiveSessionWelcome() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-4">
-      <h1 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+    <div className="max-w-4xl mx-auto mt-20 p-12">
+      <h1 className="text-xl font-semibold text-gray-800 mb-8 text-center">
         How can I help you today?
       </h1>
       
