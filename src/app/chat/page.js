@@ -38,7 +38,7 @@ export default function ChatIndexPage() {
         </button>
       )}
 
-      <div className="flex-1 relative overflow-hidden w-full">
+      <div className="flex-1 relative overflow-hidden w-full bg-gray-50">
         <ChatWindow />
       </div>
 

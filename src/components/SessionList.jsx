@@ -26,13 +26,6 @@ export default function SessionList({ onDeleteSession, onOpenSettings }) {
         searchTerm={searchTerm}
         onSearchChange={(e) => setSearchTerm(e.target.value)}
       />
-      <button
-        onClick={onOpenSettings}
-        className="w-full px-4 py-2 mt-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-      >
-        <FiSettings className="w-4 h-4" />
-        <span>Settings</span>
-      </button>
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {filteredSessions.length > 0 ? (
           filteredSessions.map((session) => (
@@ -47,6 +40,13 @@ export default function SessionList({ onDeleteSession, onOpenSettings }) {
           <p className="text-center text-gray-400">No chats found.</p>
         )}
       </div>
+      <button
+        onClick={onOpenSettings}
+        className="absolute bottom-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+        aria-label="Settings"
+      >
+        <FiSettings className="w-5 h-5 text-gray-600" />
+      </button>
     </div>
   );
 }
