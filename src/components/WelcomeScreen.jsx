@@ -34,21 +34,26 @@ export default function WelcomeScreen() {
   return (
     <div className="flex-1 flex flex-col items-center p-8 max-w-5xl mx-auto w-full">
       <div className="w-full space-y-8">
-        <div className="flex justify-center mb-12">
+        <div className="flex justify-center mb-12 opacity-0 animate-fade-in-up" 
+             style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
           <img
             src="/assets/main-logo.png"
             alt="Main Logo"
             className="h-16 w-auto"
           />
         </div>
-        
+
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {agents.map((agent, index) => (
               <button
                 key={index}
                 onClick={handleCreateSession}
-                className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-all text-left"
+                className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-all text-left opacity-0 animate-fade-in-up"
+                style={{ 
+                  animationDelay: `${(index + 1) * 0.15 + 0.3}s`,
+                  animationFillMode: 'forwards'
+                }}
               >
                 <div className="p-2 bg-gray-50 rounded-lg">
                   {agent.icon}
@@ -64,13 +69,22 @@ export default function WelcomeScreen() {
           </div>
 
           <div className="flex flex-col items-center mt-12 pt-8 border-t border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Ready to start chatting?</h2>
-            <p className="text-gray-600 mb-6 text-center max-w-md">
+            <h2 
+              className="text-2xl font-bold text-gray-900 mb-3 opacity-0 animate-fade-in-up"
+              style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}
+            >
+              Ready to start chatting?
+            </h2>
+            <p 
+              className="text-gray-600 mb-6 text-center max-w-md opacity-0 animate-fade-in-up"
+              style={{ animationDelay: '0.9s', animationFillMode: 'forwards' }}
+            >
               Choose any template above or start a fresh conversation with our AI assistant
             </p>
             <button
               onClick={handleCreateSession}
-              className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 rounded-full overflow-hidden shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
+              className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 rounded-full overflow-hidden shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 opacity-0 animate-fade-in-up"
+              style={{ animationDelay: '1s', animationFillMode: 'forwards' }}
             >
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
               <span className="relative flex items-center">

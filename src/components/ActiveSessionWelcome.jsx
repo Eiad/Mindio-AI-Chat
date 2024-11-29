@@ -42,7 +42,10 @@ export default function ActiveSessionWelcome() {
 
   return (
     <div className="max-w-4xl mx-auto mt-20 p-12">
-      <h1 className="text-xl font-semibold text-gray-800 mb-8 text-center">
+      <h1 
+        className="text-xl font-semibold text-gray-800 mb-8 text-center opacity-0 animate-fade-in-up"
+        style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}
+      >
         How can I help you today?
       </h1>
       
@@ -50,7 +53,11 @@ export default function ActiveSessionWelcome() {
         {suggestions.map((category, index) => (
           <div 
             key={index}
-            className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 hover:border-gray-200 transition-all"
+            className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 hover:border-gray-200 transition-all opacity-0 animate-fade-in-up"
+            style={{ 
+              animationDelay: `${(index + 1) * 0.15 + 0.3}s`,
+              animationFillMode: 'forwards'
+            }}
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 bg-gray-50 rounded-md">
@@ -65,7 +72,11 @@ export default function ActiveSessionWelcome() {
               {category.examples.map((example, idx) => (
                 <li 
                   key={idx}
-                  className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer p-1.5 rounded hover:bg-gray-50 transition-all"
+                  className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer p-1.5 rounded hover:bg-gray-50 transition-all opacity-0 animate-fade-in-up"
+                  style={{ 
+                    animationDelay: `${(index * 3 + idx) * 0.1 + 0.6}s`,
+                    animationFillMode: 'forwards'
+                  }}
                 >
                   "{example}"
                 </li>
