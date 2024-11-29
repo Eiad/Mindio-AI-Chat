@@ -5,12 +5,14 @@ import ChatWindow from '../../../components/ChatWindow';
 import SessionList from '../../../components/SessionList';
 import { FiMenu } from 'react-icons/fi';
 import ConfirmationModal from '../../../components/ConfirmationModal';
+import SettingsModal from '../../../components/SettingsModal';
 import { useChat } from '../../../context/ChatContext';
 
 export default function ChatPage() {
   const { dispatch } = useChat();
   const [isSessionListOpen, setIsSessionListOpen] = useState(false);
   const [deleteSessionId, setDeleteSessionId] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   const toggleSessionList = () => {
     setIsSessionListOpen(!isSessionListOpen);
@@ -42,7 +44,10 @@ export default function ChatPage() {
           ${isSessionListOpen ? 'block' : 'hidden md:block'}
         `}
       >
-        <SessionList onDeleteSession={handleDeleteSession} />
+        <SessionList 
+          onDeleteSession={handleDeleteSession}
+          onOpenSettings={() => setShowSettings(true)}
+        />
       </div>
 
       {!isSessionListOpen && (
@@ -67,6 +72,11 @@ export default function ChatPage() {
           onCancel={closeDeleteModal}
         />
       )}
+
+      <SettingsModal 
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </div>
   );
 }

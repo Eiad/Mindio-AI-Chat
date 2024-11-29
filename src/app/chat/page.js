@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import ChatWindow from '../../components/ChatWindow';
 import SessionList from '../../components/SessionList';
+import SettingsModal from '../../components/SettingsModal';
 import { FiMenu } from 'react-icons/fi';
 
 export default function ChatIndexPage() {
   const [isSessionListOpen, setIsSessionListOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const toggleSessionList = () => {
     setIsSessionListOpen(!isSessionListOpen);
@@ -23,7 +25,7 @@ export default function ChatIndexPage() {
           ${isSessionListOpen ? 'block' : 'hidden md:block'}
         `}
       >
-        <SessionList />
+        <SessionList onOpenSettings={() => setShowSettings(true)} />
       </div>
 
       {!isSessionListOpen && (
@@ -39,6 +41,11 @@ export default function ChatIndexPage() {
       <div className="flex-1 relative overflow-hidden w-full">
         <ChatWindow />
       </div>
+
+      <SettingsModal 
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </div>
   );
 }

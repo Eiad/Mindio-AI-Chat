@@ -3,17 +3,15 @@ import { useChat } from '../context/ChatContext';
 import SessionHeader from './session/SessionHeader';
 import SessionListItem from './session/SessionListItem';
 import { FiSettings } from 'react-icons/fi';
-import SettingsModal from './SettingsModal';
 
-export default function SessionList({ onDeleteSession }) {
+export default function SessionList({ onDeleteSession, onOpenSettings }) {
   const { state, createSession } = useChat();
   const [searchTerm, setSearchTerm] = useState('');
-  const [showSettings, setShowSettings] = useState(false);
 
   const handleCreateSession = (e) => {
     e?.preventDefault?.();
     const newSessionId = createSession();
-    return false; // Prevent any default actions
+    return false;
   };
 
   const filteredSessions = state.sessions.filter(session =>
@@ -29,7 +27,7 @@ export default function SessionList({ onDeleteSession }) {
         onSearchChange={(e) => setSearchTerm(e.target.value)}
       />
       <button
-        onClick={() => setShowSettings(true)}
+        onClick={onOpenSettings}
         className="w-full px-4 py-2 mt-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
       >
         <FiSettings className="w-4 h-4" />
@@ -49,10 +47,6 @@ export default function SessionList({ onDeleteSession }) {
           <p className="text-center text-gray-400">No chats found.</p>
         )}
       </div>
-      <SettingsModal 
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-      />
     </div>
   );
 }
