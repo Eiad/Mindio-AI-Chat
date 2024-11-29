@@ -9,7 +9,8 @@ export async function fetchChatResponse(prompt, settings, messages = []) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-KEY': apiKey
+        'X-API-KEY': apiKey,
+        'X-MODEL': sessionStorage.getItem('SELECTED_MODEL') || 'gpt-3.5-turbo'
       },
       body: JSON.stringify({ 
         prompt, 

@@ -50,7 +50,7 @@ export async function POST(request) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: request.headers.get('x-model') || 'gpt-3.5-turbo',
         messages,
         temperature: settings?.tone === 'default' ? 0.7 : 0.9,
         max_tokens: 2000,
