@@ -23,5 +23,9 @@ export const storage = {
   deleteSession(sessionId) {
     const sessions = this.getSessions().filter(s => s.id !== sessionId);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+  },
+
+  deleteAllSessions() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
   }
 };

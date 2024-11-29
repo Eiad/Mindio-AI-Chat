@@ -109,6 +109,13 @@ function chatReducer(state, action) {
         ...state,
         showApiKeyModal: action.payload,
       };
+    case 'DELETE_ALL_SESSIONS':
+      storage.deleteAllSessions();
+      return {
+        ...state,
+        sessions: [],
+        activeSessionId: null,
+      };
     default:
       return state;
   }
