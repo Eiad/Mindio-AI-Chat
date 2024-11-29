@@ -10,6 +10,7 @@ export default function SettingsModal({ isOpen, onClose }) {
   const models = [
     'gpt-4o',
     'chatgpt-4o-latest',
+    'gpt-4-turbo-preview',
     'gpt-4o-mini',
     // 'o1-preview',
     // 'o1-mini',
