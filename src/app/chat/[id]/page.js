@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChatWindow from '../../../components/ChatWindow';
 import SessionList from '../../../components/SessionList';
 import SettingsModal from '../../../components/SettingsModal';
@@ -10,13 +10,30 @@ import ConfirmationModal from '../../../components/ConfirmationModal';
 
 export default function ChatPage() {
   const { dispatch } = useChat();
-  const [isSessionListOpen, setIsSessionListOpen] = useState(true);
+  const [isSessionListOpen, setIsSessionListOpen] = useState(false);
   const [deleteSessionId, setDeleteSessionId] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
 
   const toggleSessionList = () => {
     setIsSessionListOpen(!isSessionListOpen);
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsSessionListOpen(true); // Open on larger screens
+      } else {
+        setIsSessionListOpen(false); // Close on mobile
+      }
+    };
+
+    handleResize(); // Set initial state
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleDeleteSession = (sessionId) => {
     setDeleteSessionId(sessionId);

@@ -1,18 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChatWindow from '../../components/ChatWindow';
 import SessionList from '../../components/SessionList';
 import SettingsModal from '../../components/SettingsModal';
 import LeftMenuToggleButton from '../../components/LeftMenuToggleButton';
 
 export default function ChatIndexPage() {
-  const [isSessionListOpen, setIsSessionListOpen] = useState(true);
+  const [isSessionListOpen, setIsSessionListOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   const toggleSessionList = () => {
     setIsSessionListOpen(!isSessionListOpen);
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsSessionListOpen(true); // Open on larger screens
+      } else {
+        setIsSessionListOpen(false); // Close on mobile
+      }
+    };
+
+    handleResize(); // Set initial state
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden">
