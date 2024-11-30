@@ -7,10 +7,11 @@ import { FiMenu } from 'react-icons/fi';
 import ConfirmationModal from '../../../components/ConfirmationModal';
 import SettingsModal from '../../../components/SettingsModal';
 import { useChat } from '../../../context/ChatContext';
+import { FiChevronsLeft, FiChevronsRight } from 'react-icons/fi';
 
 export default function ChatPage() {
   const { dispatch } = useChat();
-  const [isSessionListOpen, setIsSessionListOpen] = useState(false);
+  const [isSessionListOpen, setIsSessionListOpen] = useState(true);
   const [deleteSessionId, setDeleteSessionId] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -37,11 +38,9 @@ export default function ChatPage() {
     <div className="flex h-screen overflow-hidden">
       <div
         className={`
-          fixed inset-y-0 left-0 bg-white shadow-md z-40
-          transform transition-transform duration-300 ease-in-out
-          ${isSessionListOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:relative md:translate-x-0
-          ${isSessionListOpen ? 'block' : 'hidden md:block'}
+          fixed inset-y-0 left-0 w-80 bg-white shadow-md z-40
+          transform transition-all duration-300 ease-in-out
+          ${isSessionListOpen ? 'translate-x-0' : '-translate-x-full'}          
         `}
       >
         <SessionList 
@@ -50,17 +49,31 @@ export default function ChatPage() {
         />
       </div>
 
-      {!isSessionListOpen && (
-        <button
-          onClick={toggleSessionList}
-          className="md:hidden fixed top-4 left-4 z-50 w-10 h-10 flex items-center justify-center text-2xl text-gray-700 focus:outline-none bg-white rounded-full shadow-lg"
-          aria-label="Toggle Session List"
-        >
-          <FiMenu />
-        </button>
-      )}
+      <button
+        onClick={toggleSessionList}
+        className={`
+          fixed top-[70px] -translate-y-1/2 z-50 
+          w-6 h-24 bg-white shadow-lg rounded-r-lg
+          flex items-center justify-center
+          hover:bg-gray-50 transition-all duration-300
+          focus:outline-none
+          transform ${isSessionListOpen ? 'translate-x-80' : 'translate-x-0'}
+          
+        `}
+        aria-label="Toggle Session List"
+      >
+        {isSessionListOpen ? (
+          <FiChevronsLeft className="w-4 h-4 text-gray-600" />
+        ) : (
+          <FiChevronsRight className="w-4 h-4 text-gray-600" />
+        )}
+      </button>
 
-      <div className="flex-1 relative overflow-hidden w-full bg-gray-50">
+      <div className={`
+        flex-1 relative overflow-hidden w-full bg-gray-50
+        transition-all duration-300 ease-in-out
+        ${isSessionListOpen ? 'md:ml-80' : 'ml-0'}
+      `}>
         <ChatWindow />
       </div>
 
