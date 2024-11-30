@@ -4,7 +4,7 @@ import { useState } from 'react';
 import ChatWindow from '../../components/ChatWindow';
 import SessionList from '../../components/SessionList';
 import SettingsModal from '../../components/SettingsModal';
-import { FiChevronsLeft, FiChevronsRight } from 'react-icons/fi';
+import LeftMenuToggleButton from '../../components/LeftMenuToggleButton';
 
 export default function ChatIndexPage() {
   const [isSessionListOpen, setIsSessionListOpen] = useState(true);
@@ -26,25 +26,10 @@ export default function ChatIndexPage() {
         <SessionList onOpenSettings={() => setShowSettings(true)} />
       </div>
 
-      <button
-        onClick={toggleSessionList}
-        className={`
-          fixed top-[70px] -translate-y-1/2 z-50 
-          w-6 h-24 bg-white shadow-lg rounded-r-lg
-          flex items-center justify-center
-          hover:bg-gray-50 transition-all duration-300
-          focus:outline-none
-          transform ${isSessionListOpen ? 'translate-x-80' : 'translate-x-0'}
-          
-        `}
-        aria-label="Toggle Session List"
-      >
-        {isSessionListOpen ? (
-          <FiChevronsLeft className="w-4 h-4 text-gray-600" />
-        ) : (
-          <FiChevronsRight className="w-4 h-4 text-gray-600" />
-        )}
-      </button>
+      <LeftMenuToggleButton 
+        isSessionListOpen={isSessionListOpen} 
+        toggleSessionList={toggleSessionList} 
+      />
 
       <div className={`
         flex-1 relative overflow-hidden w-full bg-gray-50
