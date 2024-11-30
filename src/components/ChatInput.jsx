@@ -161,38 +161,55 @@ export default function ChatInput({
           />
           
           <div className="flex items-center gap-1 px-2 py-2 border-t">
-            <button
-              onClick={onToggleControls}
-              className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Settings"
-            >
-              <FiSettings className="w-5 h-5 text-gray-500" />
-            </button>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isProcessingFile}
-              className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Attach PDF"
-            >
-              <FiPaperclip className="w-5 h-5 text-gray-500" />
-            </button>
-            <button
-              onClick={() => imageInputRef.current?.click()}
-              disabled={isProcessingFile}
-              className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Upload Image"
-            >
-              <FiImage className="w-5 h-5 text-gray-500" />
-            </button>
+            <div className="relative group">
+              <button
+                onClick={onToggleControls}
+                className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FiSettings className="w-5 h-5 text-gray-500" />
+              </button>
+              <span className="absolute left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 w-max bg-gray-800 text-white text-xs rounded-lg p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                Settings
+              </span>
+            </div>
+            <div className="relative group">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isProcessingFile}
+                className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FiPaperclip className="w-5 h-5 text-gray-500" />
+              </button>
+              <span className="absolute left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 w-max bg-gray-800 text-white text-xs rounded-lg p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                Attach Files
+              </span>
+            </div>
+            <div className="relative group">
+              <button
+                onClick={() => imageInputRef.current?.click()}
+                disabled={isProcessingFile}
+                className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FiImage className="w-5 h-5 text-gray-500" />
+              </button>
+              <span className="absolute left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 w-max bg-gray-800 text-white text-xs rounded-lg p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                Upload Image
+              </span>
+            </div>
             <div className="flex-1" />
-            <button
-              onClick={handleImageGeneration}
-              disabled={isGeneratingImage || !input.trim()}
-              className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-              title="Generate Image"
-            >
-              <RiMagicFill className={`w-5 h-5 ${input.trim() ? 'text-purple-600' : 'text-gray-400'}`} />
-            </button>
+            <div className="relative group">
+              <button
+                onClick={handleImageGeneration}
+                disabled={isGeneratingImage || !input.trim()}
+                className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                title="Generate Image"
+              >
+                <RiMagicFill className={`w-5 h-5 ${input.trim() ? 'text-purple-600' : 'text-gray-400'}`} />
+              </button>
+              <span className="absolute left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 w-max bg-gray-800 text-white text-xs rounded-lg p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                Generate Image
+              </span>
+            </div>
             <button
               onClick={handleSubmit}
               disabled={(!input.trim() && !attachedFile) || isLoading}
