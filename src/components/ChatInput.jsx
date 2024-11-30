@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { FiSend, FiImage, FiFile, FiSettings, FiPaperclip, FiX } from 'react-icons/fi';
+import { FiSend, FiImage, FiFile, FiSettings, FiPaperclip, FiX, FiFileText, FiCode } from 'react-icons/fi';
 import { RiMagicFill } from 'react-icons/ri';
 import styles from './ChatInput.module.scss';
 
@@ -58,9 +58,11 @@ export default function ChatInput({
       formData.append('text', input);
 
       if (attachedFile.type === 'application/pdf') {
-        onFileUpload(attachedFile, input);
+        onFileUpload(attachedFile, input, '/api/process-pdf');
       } else if (attachedFile.type.startsWith('image/')) {
         onImageUpload(attachedFile, input);
+      } else {
+        onFileUpload(attachedFile, input, '/api/process-file');
       }
       setAttachedFile(null);
       setImagePreview(null);
@@ -104,7 +106,7 @@ export default function ChatInput({
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
-            accept=".pdf"
+            accept=".pdf,.txt,.js,.html,text/plain,text/javascript,text/html,application/pdf"
             className="hidden"
           />
           <input
@@ -115,25 +117,23 @@ export default function ChatInput({
             className="hidden"
           />
           
-          {imagePreview && (
+          {attachedFile && (
             <div className="absolute top-3 right-3 flex items-center gap-2 bg-gray-100 rounded-lg p-2">
-              <img 
-                src={imagePreview} 
-                alt="Preview" 
-                className="w-10 h-10 object-cover rounded-lg"
-              />
-              <button
-                onClick={handleRemoveAttachment}
-                className="p-1.5 hover:bg-gray-200 rounded-full transition-colors"
-              >
-                <FiX className="w-4 h-4 text-gray-600" />
-              </button>
-            </div>
-          )}
-
-          {attachedFile && attachedFile.type === 'application/pdf' && (
-            <div className="absolute top-3 right-3 flex items-center gap-2 bg-gray-100 rounded-lg p-2">
-              <FiPaperclip className="w-4 h-4 text-gray-600" />
+              {attachedFile.type.startsWith('image/') ? (
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  className="w-10 h-10 object-cover rounded-lg"
+                />
+              ) : (
+                <>
+                  {attachedFile.name.endsWith('.pdf') && <FiPaperclip className="w-5 h-5 text-gray-500" />}
+                  {attachedFile.name.endsWith('.txt') && <FiFileText className="w-4 h-4 text-gray-600" />}
+                  {attachedFile.name.endsWith('.js') && <FiCode className="w-4 h-4 text-gray-600" />}
+                  {attachedFile.name.endsWith('.html') && <FiCode className="w-4 h-4 text-gray-600" />}
+                  {!attachedFile.name.match(/\.(pdf|txt|js|html)$/) && <FiPaperclip className="w-5 h-5 text-gray-500" />}
+                </>
+              )}
               <span className="text-sm text-gray-600 max-w-[150px] truncate">
                 {attachedFile.name}
               </span>
@@ -174,7 +174,7 @@ export default function ChatInput({
               className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors"
               title="Attach PDF"
             >
-              <FiFile className="w-5 h-5 text-gray-500" />
+              <FiPaperclip className="w-5 h-5 text-gray-500" />
             </button>
             <button
               onClick={() => imageInputRef.current?.click()}

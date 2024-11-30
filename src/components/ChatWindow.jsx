@@ -252,57 +252,39 @@ export default function ChatWindow() {
     const formData = new FormData();
     formData.append('file', file);
     
-    // Create context-aware prompt
-    const userIntent = text.toLowerCase();
-    let smartPrompt;
-
-    // Handle translation requests
-    if (userIntent.includes('translate') || userIntent.includes('translation')) {
-      const targetLanguage = userIntent.includes('to ') ? 
-        userIntent.split('to ')[1].split(' ')[0] : 
-        'the requested language';
-      
-      smartPrompt = `Please translate the content of this PDF to ${targetLanguage}. 
-      Maintain the document's structure and formatting while providing an accurate translation.
-      If there are any technical terms or specific jargon, please provide appropriate translations 
-      while keeping the original meaning intact.`;
-    } 
-    // Handle summary requests
-    else if (userIntent.includes('summary') || userIntent.includes('summarize')) {
-      smartPrompt = `Please provide a comprehensive summary of this PDF document, focusing on:
-      1. Key points and main arguments
-      2. Important findings or conclusions
-      3. Significant data or statistics
-      4. Recommendations or action items
-      Please structure the summary in a clear, organized manner.`;
+    // Determine file type and endpoint
+    const fileType = file.type || (file.name.endsWith('.html') ? 'text/html' : 'application/octet-stream');
+    let endpoint = '/api/process-pdf';
+    
+    if (fileType === 'application/pdf') {
+      endpoint = '/api/process-pdf';
+    } else if (fileType === 'text/html' || 
+               fileType === 'text/javascript' || 
+               fileType === 'text/plain' || 
+               file.name.endsWith('.js') || 
+               file.name.endsWith('.html') || 
+               file.name.endsWith('.txt')) {
+      endpoint = '/api/process-file';
+    } else {
+      setIsProcessing(false);
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: {
+          role: 'assistant',
+          content: 'Unsupported file type. Please upload PDF, HTML, JavaScript, or text files.',
+          type: 'error',
+          timestamp: new Date().toISOString()
+        }
+      });
+      return;
     }
-    // Handle analysis requests
-    else if (userIntent.includes('analyze') || userIntent.includes('analysis')) {
-      smartPrompt = `Please provide a detailed analysis of this PDF document, including:
-      1. Main themes and concepts
-      2. Critical evaluation of the content
-      3. Key insights and implications
-      4. Supporting evidence and data
-      5. Potential applications or recommendations`;
-    }
-    // Default smart prompt for any other request
-    else {
-      smartPrompt = `Based on the user's request: "${text}", please:
-      1. Analyze the PDF content thoroughly
-      2. Focus on addressing the specific aspects mentioned in the request
-      3. Provide relevant information and insights
-      4. Include supporting evidence from the document
-      5. Structure the response in a clear, logical manner`;
-    }
-
-    formData.append('text', text);
-    formData.append('smartPrompt', smartPrompt);
 
     const userMessage = {
       role: 'user',
-      content: text,
-      type: 'pdf',
+      content: text || `Analyzing file: ${file.name}`,
+      type: 'file',
       fileName: file.name,
+      fileType: fileType,
       timestamp: new Date().toISOString(),
       messageId: Date.now().toString()
     };
@@ -313,7 +295,7 @@ export default function ChatWindow() {
     });
 
     try {
-      const response = await fetch('/api/process-pdf', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'X-API-KEY': apiKey
@@ -324,27 +306,27 @@ export default function ChatWindow() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to process PDF');
+        throw new Error(data.error || 'Failed to process file');
       }
 
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
           role: 'assistant',
-          content: data.summary,
+          content: data.summary || data.analysis,
           type: 'text',
           timestamp: new Date().toISOString(),
           parentMessageId: userMessage.messageId,
-          contextType: 'pdf-analysis'
+          contextType: fileType === 'application/pdf' ? 'pdf-analysis' : 'file-analysis'
         }
       });
     } catch (error) {
-      console.error('PDF handling error:', error);
+      console.error('File handling error:', error);
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
           role: 'assistant',
-          content: error.message || 'Failed to process PDF. Please try again.',
+          content: error.message || 'Failed to process file. Please try again.',
           type: 'error',
           timestamp: new Date().toISOString()
         }

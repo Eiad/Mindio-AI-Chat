@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ImageModal from './ImageModal';
-import { FiFile } from 'react-icons/fi';
+import { FiFile, FiFileText, FiCode } from 'react-icons/fi';
 
 export default function MessageBubble({ message, previousMessage }) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -8,6 +8,30 @@ export default function MessageBubble({ message, previousMessage }) {
   const isContextContinuation = message.parentMessageId || 
     (previousMessage && message.contextType === previousMessage.contextType);
   
+  const getFileIcon = (fileName) => {
+    if (fileName.endsWith('.pdf')) {
+      return <FiFile className="w-5 h-5 text-gray-600" />;
+    } else if (fileName.endsWith('.txt') || fileName.endsWith('.html')) {
+      return <FiFileText className="w-5 h-5 text-gray-600" />;
+    } else if (fileName.endsWith('.js')) {
+      return <FiCode className="w-5 h-5 text-gray-600" />;
+    }
+    return <FiFile className="w-5 h-5 text-gray-600" />;
+  };
+
+  const getFileTypeLabel = (fileName) => {
+    if (fileName.endsWith('.pdf')) {
+      return 'PDF Document';
+    } else if (fileName.endsWith('.txt')) {
+      return 'Text File';
+    } else if (fileName.endsWith('.js')) {
+      return 'JavaScript File';
+    } else if (fileName.endsWith('.html')) {
+      return 'HTML File';
+    }
+    return 'Document';
+  };
+
   const renderContent = () => {
     if (message.type === 'image' && isUser) {
       return (
@@ -53,17 +77,22 @@ export default function MessageBubble({ message, previousMessage }) {
       );
     }
 
-    if (message.type === 'pdf' && isUser) {
+    if (message.type === 'file' || message.type === 'pdf') {
       return (
         <div className="space-y-3">
           <p className="whitespace-pre-wrap leading-relaxed">
             {message.content}
           </p>
-          <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-3 max-w-[200px]">
-            <FiFile className="w-5 h-5 text-gray-600" />
-            <span className="text-sm text-gray-600 truncate">
-              {message.fileName}
-            </span>
+          <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-3 max-w-[250px]">
+            {getFileIcon(message.fileName)}
+            <div className="flex flex-col">
+              <span className="text-sm text-gray-600 truncate">
+                {message.fileName}
+              </span>
+              <span className="text-xs text-gray-500">
+                {getFileTypeLabel(message.fileName)}
+              </span>
+            </div>
           </div>
         </div>
       );
