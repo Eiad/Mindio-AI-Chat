@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useSessionStorage } from '../hooks/useSessionStorage';
+import { useApiKey } from '../hooks/useApiKey';
 import { FiEye, FiEyeOff, FiX, FiCheckCircle, FiLoader } from 'react-icons/fi';
 
 export default function ApiKeyModal({ isOpen, onClose }) {
-  const [apiKey, setApiKey] = useSessionStorage('OPENAI_API_KEY', '');
+  const [apiKey, setApiKey] = useApiKey();
   const [inputValue, setInputValue] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [error, setError] = useState('');
@@ -51,11 +51,9 @@ export default function ApiKeyModal({ isOpen, onClose }) {
       setIsSuccess(true);
       setApiKey(inputValue);
 
-      // Close modal after successful validation
       setTimeout(() => {
         setIsSuccess(false);
         onClose();
-        // Force a window reload to ensure all components pick up the new API key
         window.location.reload();
       }, 1500);
     } catch (error) {
