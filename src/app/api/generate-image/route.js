@@ -4,7 +4,6 @@ export async function POST(request) {
   const apiKey = request.headers.get('x-api-key');
   const imageSize = request.headers.get('x-image-size');
   const imageQuality = request.headers.get('x-image-quality');
-  const imageStyle = request.headers.get('x-image-style');
   
   if (!apiKey) {
     return NextResponse.json(
@@ -29,7 +28,6 @@ export async function POST(request) {
         n: 1,
         size: imageSize,
         quality: imageQuality,
-        style: imageStyle,
         response_format: "url"
       }),
     });

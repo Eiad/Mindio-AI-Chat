@@ -35,11 +35,6 @@ export default function SettingsModal({ isOpen, onClose }) {
     'hd'
   ];
 
-  const imageStyles = [
-    'vivid',
-    'natural'
-  ];
-
   const handleDeleteAllChats = async () => {
     setIsDeleting(true);
     
@@ -137,23 +132,6 @@ export default function SettingsModal({ isOpen, onClose }) {
                   {imageQualities.map(quality => (
                     <option key={quality} value={quality}>
                       {quality.charAt(0).toUpperCase() + quality.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Style
-                </label>
-                <select
-                  value={dalleSettings.imageStyle}
-                  onChange={(e) => handleDalleSettingChange('imageStyle', e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  {imageStyles.map(style => (
-                    <option key={style} value={style}>
-                      {style.charAt(0).toUpperCase() + style.slice(1)}
                     </option>
                   ))}
                 </select>

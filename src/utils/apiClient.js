@@ -56,8 +56,7 @@ export async function fetchImageGeneration(prompt) {
       'Content-Type': 'application/json',
       'X-API-KEY': apiKey,
       'X-IMAGE-SIZE': dalleSettings.imageSize,
-      'X-IMAGE-QUALITY': dalleSettings.imageQuality,
-      'X-IMAGE-STYLE': dalleSettings.imageStyle
+      'X-IMAGE-QUALITY': dalleSettings.imageQuality
     },
     body: JSON.stringify({ prompt }),
   });

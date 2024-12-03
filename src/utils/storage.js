@@ -65,15 +65,13 @@ export const storage = {
   getDalleSettings() {
     if (typeof window === 'undefined') return {
       imageSize: '1024x1024',
-      imageQuality: 'standard',
-      imageStyle: 'vivid'
+      imageQuality: 'standard'
     };
     
     const settings = localStorage.getItem('dalle_settings');
     return settings ? JSON.parse(settings) : {
       imageSize: '1024x1024',
-      imageQuality: 'standard',
-      imageStyle: 'vivid'
+      imageQuality: 'standard'
     };
   },
 
