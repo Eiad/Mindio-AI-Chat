@@ -124,7 +124,10 @@ export default function ChatWindow() {
     dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
     
     try {
-      const { imageUrl, revisedPrompt } = await fetchImageGeneration(prompt);
+      const { imageUrl, revisedPrompt } = await fetchImageGeneration(
+        prompt, 
+        activeSession.messages || []
+      );
       
       // Convert blob URL to actual image URL if needed
       let finalImageUrl = imageUrl;

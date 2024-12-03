@@ -13,8 +13,50 @@ export async function POST(request) {
   }
 
   try {
-    const { prompt } = await request.json();
-    const enhancedPrompt = `${prompt}`;
+    const { prompt, conversationHistory } = await request.json();
+    
+    let enhancedPrompt = prompt;
+    if (conversationHistory && conversationHistory.length > 0) {
+      const lastMessages = conversationHistory.slice(-10);
+      const imageMessages = lastMessages.filter(msg => msg.type === 'image');
+      
+      if (imageMessages.length > 0) {
+        const contextResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: 'gpt-4-turbo-preview',
+            messages: [
+              {
+                role: 'system',
+                content: `You are an AI image generation assistant. Analyze the conversation context and help create an appropriate image prompt.
+
+Previous image generations (from oldest to newest):
+${imageMessages.map(msg => `- Prompt: ${msg.revisedPrompt}`).join('\n')}
+
+Current user request: "${prompt}"
+
+Your task:
+1. Analyze how the current request relates to previous images
+2. If it's a modification request (like "another one", "make it night", etc.), use the most relevant previous prompt as base
+3. If it's a new request, use the original prompt
+4. Return ONLY the final prompt, no explanations`
+              }
+            ],
+            temperature: 0.7,
+            max_tokens: 300,
+          }),
+        });
+
+        const contextData = await contextResponse.json();
+        if (contextResponse.ok) {
+          enhancedPrompt = contextData.choices[0].message.content.trim();
+        }
+      }
+    }
     
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',

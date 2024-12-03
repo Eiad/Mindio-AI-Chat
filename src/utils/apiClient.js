@@ -42,7 +42,7 @@ export async function fetchChatResponse(prompt, settings, messages = []) {
   }
 }
 
-export async function fetchImageGeneration(prompt) {
+export async function fetchImageGeneration(prompt, messages = []) {
   const apiKey = storage.getApiKey();
   const dalleSettings = storage.getDalleSettings();
 
@@ -58,7 +58,10 @@ export async function fetchImageGeneration(prompt) {
       'X-IMAGE-SIZE': dalleSettings.imageSize,
       'X-IMAGE-QUALITY': dalleSettings.imageQuality
     },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ 
+      prompt,
+      conversationHistory: messages.slice(-10)
+    }),
   });
 
   const data = await response.json();
