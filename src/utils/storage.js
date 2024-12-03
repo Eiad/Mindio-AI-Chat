@@ -60,5 +60,25 @@ export const storage = {
     if (typeof window === 'undefined') return;
     localStorage.removeItem(API_KEY_STORAGE_KEY);
     sessionStorage.removeItem('OPENAI_API_KEY');
+  },
+
+  getDalleSettings() {
+    if (typeof window === 'undefined') return {
+      imageSize: '1024x1024',
+      imageQuality: 'standard',
+      imageStyle: 'vivid'
+    };
+    
+    const settings = localStorage.getItem('dalle_settings');
+    return settings ? JSON.parse(settings) : {
+      imageSize: '1024x1024',
+      imageQuality: 'standard',
+      imageStyle: 'vivid'
+    };
+  },
+
+  saveDalleSettings(settings) {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('dalle_settings', JSON.stringify(settings));
   }
 };

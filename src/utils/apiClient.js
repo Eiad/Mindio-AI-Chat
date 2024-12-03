@@ -1,5 +1,7 @@
+import { storage } from './storage';
+
 export async function fetchChatResponse(prompt, settings, messages = []) {
-  const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
+  const apiKey = storage.getApiKey();
   if (!apiKey) {
     throw new Error('Please enter your OpenAI API key to continue');
   }
@@ -10,7 +12,7 @@ export async function fetchChatResponse(prompt, settings, messages = []) {
       headers: {
         'Content-Type': 'application/json',
         'X-API-KEY': apiKey,
-        'X-MODEL': sessionStorage.getItem('SELECTED_MODEL') || 'gpt-3.5-turbo'
+        'X-MODEL': localStorage.getItem('SELECTED_MODEL') || 'gpt-3.5-turbo'
       },
       body: JSON.stringify({ 
         prompt, 
@@ -22,7 +24,7 @@ export async function fetchChatResponse(prompt, settings, messages = []) {
     const data = await response.json();
 
     if (response.status === 401) {
-      sessionStorage.removeItem('OPENAI_API_KEY');
+      storage.removeApiKey();
       throw new Error('Invalid API key');
     }
 
@@ -34,14 +36,16 @@ export async function fetchChatResponse(prompt, settings, messages = []) {
   } catch (error) {
     console.error('Chat API Error:', error);
     if (error.message.includes('API key')) {
-      sessionStorage.removeItem('OPENAI_API_KEY');
+      storage.removeApiKey();
     }
     throw error;
   }
 }
 
 export async function fetchImageGeneration(prompt) {
-  const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
+  const apiKey = storage.getApiKey();
+  const dalleSettings = storage.getDalleSettings();
+
   if (!apiKey) {
     throw new Error('Please enter your OpenAI API key to continue');
   }
@@ -50,7 +54,10 @@ export async function fetchImageGeneration(prompt) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-API-KEY': apiKey
+      'X-API-KEY': apiKey,
+      'X-IMAGE-SIZE': dalleSettings.imageSize,
+      'X-IMAGE-QUALITY': dalleSettings.imageQuality,
+      'X-IMAGE-STYLE': dalleSettings.imageStyle
     },
     body: JSON.stringify({ prompt }),
   });

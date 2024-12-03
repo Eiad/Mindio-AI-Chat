@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiX, FiAlertTriangle, FiCheck, FiLoader } from 'react-icons/fi';
-import { useSessionStorage } from '../hooks/useSessionStorage';
+import { storage } from '../utils/storage';
 import { useChat } from '../context/ChatContext';
 import { useRouter } from 'next/navigation';
 
 export default function SettingsModal({ isOpen, onClose }) {
-  const [apiKey, setApiKey] = useSessionStorage('OPENAI_API_KEY', '');
-  const [selectedModel, setSelectedModel] = useSessionStorage('SELECTED_MODEL', 'gpt-3.5-turbo');
+  const [apiKey, setApiKey] = useState(() => storage.getApiKey() || '');
+  const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('SELECTED_MODEL') || 'gpt-3.5-turbo');
+  const [dalleSettings, setDalleSettings] = useState(() => storage.getDalleSettings());
   const [showApiKey, setShowApiKey] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -21,6 +22,22 @@ export default function SettingsModal({ isOpen, onClose }) {
     'gpt-4o-mini',
     'gpt-4-turbo',
     'gpt-3.5-turbo'
+  ];
+
+  const imageSizes = [
+    '1024x1024',
+    '1024x1792',
+    '1792x1024'
+  ];
+
+  const imageQualities = [
+    'standard',
+    'hd'
+  ];
+
+  const imageStyles = [
+    'vivid',
+    'natural'
   ];
 
   const handleDeleteAllChats = async () => {
@@ -42,6 +59,20 @@ export default function SettingsModal({ isOpen, onClose }) {
     }, 1000);
   };
 
+  const handleDalleSettingChange = (setting, value) => {
+    const newSettings = { ...dalleSettings, [setting]: value };
+    setDalleSettings(newSettings);
+    storage.saveDalleSettings(newSettings);
+  };
+
+  // Save settings when modal closes
+  const handleSaveSettings = () => {
+    storage.saveApiKey(apiKey);
+    localStorage.setItem('SELECTED_MODEL', selectedModel);
+    storage.saveDalleSettings(dalleSettings);
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -55,43 +86,106 @@ export default function SettingsModal({ isOpen, onClose }) {
             </button>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Model Selection
-              </label>
-              <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                {models.map(model => (
-                  <option key={model} value={model}>{model}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                OpenAI API Key
-              </label>
-              <div className="flex">
-                <input
-                  type={showApiKey ? 'text' : 'password'}
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="sk-..."
-                />
-                <button
-                  onClick={() => setShowApiKey(!showApiKey)}
-                  className="px-4 py-2 border-t border-r border-b rounded-r-lg bg-gray-50"
+          <div className="space-y-6">
+            {/* Chat Model Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900">Chat Settings</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Model Selection
+                </label>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
-                  {showApiKey ? 'Hide' : 'Show'}
-                </button>
+                  {models.map(model => (
+                    <option key={model} value={model}>{model}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
+            {/* DALL-E 3 Settings Section */}
+            <div className="space-y-4 pt-6 border-t">
+              <h3 className="text-lg font-medium text-gray-900">DALL-E 3 Image Generation</h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Image Size
+                </label>
+                <select
+                  value={dalleSettings.imageSize}
+                  onChange={(e) => handleDalleSettingChange('imageSize', e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  {imageSizes.map(size => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Quality
+                </label>
+                <select
+                  value={dalleSettings.imageQuality}
+                  onChange={(e) => handleDalleSettingChange('imageQuality', e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  {imageQualities.map(quality => (
+                    <option key={quality} value={quality}>
+                      {quality.charAt(0).toUpperCase() + quality.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Style
+                </label>
+                <select
+                  value={dalleSettings.imageStyle}
+                  onChange={(e) => handleDalleSettingChange('imageStyle', e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  {imageStyles.map(style => (
+                    <option key={style} value={style}>
+                      {style.charAt(0).toUpperCase() + style.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* API Key Section */}
+            <div className="space-y-4 pt-6 border-t">
+              <h3 className="text-lg font-medium text-gray-900">API Settings</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  OpenAI API Key
+                </label>
+                <div className="flex">
+                  <input
+                    type={showApiKey ? 'text' : 'password'}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    className="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="sk-..."
+                  />
+                  <button
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="px-4 py-2 border-t border-r border-b rounded-r-lg bg-gray-50"
+                  >
+                    {showApiKey ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Delete All Chats Section */}
             <div className="pt-4 border-t">
               <button
                 onClick={() => setShowDeleteConfirmation(true)}
@@ -108,7 +202,7 @@ export default function SettingsModal({ isOpen, onClose }) {
           </div>
 
           <button
-            onClick={onClose}
+            onClick={handleSaveSettings}
             className="w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Save Settings

@@ -11,6 +11,7 @@ import WelcomeScreen from './WelcomeScreen';
 import ActiveSessionWelcome from './ActiveSessionWelcome';
 import styles from './ChatWindow.module.scss';
 import { FiLoader } from 'react-icons/fi';
+import { storage } from '../utils/storage';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -41,6 +42,7 @@ export default function ChatWindow() {
   }, [state.activeSessionId]);
 
   const handleSubmit = async (message, type = 'text') => {
+    const apiKey = storage.getApiKey();
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
       return;
@@ -168,7 +170,7 @@ export default function ChatWindow() {
   };
 
   const handleImageUpload = async (file, text) => {
-    const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
+    const apiKey = storage.getApiKey();
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
       return;
@@ -242,7 +244,7 @@ export default function ChatWindow() {
   };
 
   const handleFileUpload = async (file, text) => {
-    const apiKey = sessionStorage.getItem('OPENAI_API_KEY');
+    const apiKey = storage.getApiKey();
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
       return;
@@ -348,8 +350,8 @@ export default function ChatWindow() {
   };
 
   useEffect(() => {
-    const storedApiKey = sessionStorage.getItem('OPENAI_API_KEY');
-    if (!storedApiKey || storedApiKey === 'undefined' || storedApiKey === 'null') {
+    const storedApiKey = storage.getApiKey();
+    if (!storedApiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
     }
   }, [dispatch]);

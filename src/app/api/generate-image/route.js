@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   const apiKey = request.headers.get('x-api-key');
+  const imageSize = request.headers.get('x-image-size');
+  const imageQuality = request.headers.get('x-image-quality');
+  const imageStyle = request.headers.get('x-image-style');
   
   if (!apiKey) {
     return NextResponse.json(
@@ -24,9 +27,9 @@ export async function POST(request) {
         model: "dall-e-3",
         prompt: enhancedPrompt,
         n: 1,
-        size: "1024x1024",
-        quality: "hd",
-        style: "vivid",
+        size: imageSize,
+        quality: imageQuality,
+        style: imageStyle,
         response_format: "url"
       }),
     });
