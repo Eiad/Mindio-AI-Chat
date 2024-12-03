@@ -11,9 +11,12 @@ export default function ChatInput({
   onImageGenerate,
   isProcessingFile,
   isGeneratingImage,
-  onToggleControls 
+  onToggleControls,
+  editingMessage,
+  onCancelEdit,
+  input,
+  setInput
 }) {
-  const [input, setInput] = useState('');
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -58,11 +61,11 @@ export default function ChatInput({
       formData.append('text', input);
 
       if (attachedFile.type === 'application/pdf') {
-        onFileUpload(attachedFile, input, '/api/process-pdf');
+        onFileUpload(attachedFile, input, '/api/process-pdf', editingMessage);
       } else if (attachedFile.type.startsWith('image/')) {
-        onImageUpload(attachedFile, input);
+        onImageUpload(attachedFile, input, editingMessage);
       } else {
-        onFileUpload(attachedFile, input, '/api/process-file');
+        onFileUpload(attachedFile, input, '/api/process-file', editingMessage);
       }
       setAttachedFile(null);
       setImagePreview(null);
@@ -85,7 +88,11 @@ export default function ChatInput({
     setInput('');
 
     try {
-      await onImageGenerate(prompt);
+      if (editingMessage) {
+        await onImageGenerate(prompt, editingMessage);
+      } else {
+        await onImageGenerate(prompt);
+      }
     } catch (error) {
       console.error('Image generation failed:', error);
     }
@@ -95,6 +102,9 @@ export default function ChatInput({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
+    } else if (e.key === 'Escape' && editingMessage) {
+      e.preventDefault();
+      onCancelEdit();
     }
   };
 
@@ -143,6 +153,13 @@ export default function ChatInput({
               >
                 <FiX className="w-4 h-4 text-gray-600" />
               </button>
+            </div>
+          )}
+
+          {editingMessage && (
+            <div className="absolute -top-10 left-0 right-0 bg-blue-50 p-2 text-sm text-blue-600 rounded-t-lg flex justify-between items-center">
+              <span>Editing message</span>
+              <span className="text-gray-500">Press Enter to save, Esc to cancel</span>
             </div>
           )}
 

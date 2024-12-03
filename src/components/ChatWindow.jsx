@@ -24,6 +24,8 @@ export default function ChatWindow() {
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const [apiKey] = useSessionStorage('OPENAI_API_KEY', '');
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [editingInput, setEditingInput] = useState('');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -41,6 +43,30 @@ export default function ChatWindow() {
     }
   }, [state.activeSessionId]);
 
+  const handleEditMessage = (message) => {
+    if (message.type === 'file' || message.type === 'system') {
+      return;
+    }
+
+    setEditingMessage(message);
+    if (!message.type || message.type === 'text') {
+      setInput(message.content);
+      return;
+    }
+    
+    if (message.type === 'image') {
+      const textContent = message.content || 'Analyze this image';
+      setInput(textContent);
+      return;
+    }
+  };
+
+  const cancelEditing = () => {
+    setEditingMessage(null);
+    setEditingInput('');
+    setInput('');
+  };
+
   const handleSubmit = async (message, type = 'text') => {
     const apiKey = storage.getApiKey();
     if (!apiKey) {
@@ -49,6 +75,78 @@ export default function ChatWindow() {
     }
     
     if (!message.trim() || !activeSession || isLoading) return;
+    
+    if (editingMessage) {
+      const editedMessage = {
+        ...editingMessage,
+        content: message,
+        timestamp: new Date().toISOString(),
+        isEdited: true
+      };
+
+      dispatch({ 
+        type: 'EDIT_MESSAGE', 
+        payload: { 
+          messageId: editingMessage.messageId,
+          message: editedMessage 
+        } 
+      });
+
+      setIsLoading(true);
+
+      try {
+        const contextMessages = activeSession.messages
+          .slice(0, activeSession.messages.findIndex(m => m.messageId === editingMessage.messageId))
+          .map(msg => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.timestamp,
+            messageId: msg.messageId || msg.id
+          }));
+
+        contextMessages.push({
+          role: 'user',
+          content: message,
+          timestamp: new Date().toISOString(),
+          messageId: editedMessage.messageId
+        });
+
+        const response = await fetchChatResponse(
+          message,
+          state.settings,
+          contextMessages
+        );
+
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: {
+            role: 'assistant',
+            content: response,
+            timestamp: new Date().toISOString(),
+            parentMessageId: editedMessage.messageId,
+            contextType: 'chat'
+          }
+        });
+      } catch (error) {
+        console.error('Failed to get response:', error);
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: {
+            role: 'assistant',
+            content: error.message || 'Sorry, I encountered an error. Please try again.',
+            timestamp: new Date().toISOString(),
+            parentMessageId: editedMessage.messageId,
+            contextType: 'error'
+          }
+        });
+      } finally {
+        setIsLoading(false);
+        setEditingMessage(null);
+        setEditingInput('');
+        setInput('');
+      }
+      return;
+    }
     
     const userMessage = {
       role: 'user',
@@ -104,7 +202,7 @@ export default function ChatWindow() {
     }
   };
 
-  const handleImageGeneration = async (prompt) => {
+  const handleImageGeneration = async (prompt, editingMsg = null) => {
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
       return;
@@ -113,6 +211,67 @@ export default function ChatWindow() {
     if (!prompt.trim() || !activeSession) return;
     
     setIsGeneratingImage(true);
+
+    if (editingMsg) {
+      // Handle editing case
+      const editedMessage = {
+        ...editingMsg,
+        content: prompt,
+        timestamp: new Date().toISOString(),
+        isEdited: true
+      };
+
+      dispatch({ 
+        type: 'EDIT_MESSAGE', 
+        payload: { 
+          messageId: editingMsg.messageId,
+          message: editedMessage 
+        } 
+      });
+
+      try {
+        const contextMessages = activeSession.messages
+          .slice(0, activeSession.messages.findIndex(m => m.messageId === editingMsg.messageId))
+          .map(msg => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.timestamp,
+            messageId: msg.messageId || msg.id
+          }));
+
+        const response = await fetchImageGeneration(prompt, contextMessages);
+        
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: {
+            role: 'assistant',
+            content: response.imageUrl,
+            type: 'image',
+            revisedPrompt: response.revisedPrompt,
+            timestamp: new Date().toISOString(),
+            parentMessageId: editedMessage.messageId
+          }
+        });
+      } catch (error) {
+        console.error('Failed to generate image:', error);
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: {
+            role: 'assistant',
+            content: error.message || 'Failed to generate image. Please try again.',
+            type: 'error',
+            timestamp: new Date().toISOString(),
+            parentMessageId: editedMessage.messageId
+          }
+        });
+      } finally {
+        setIsGeneratingImage(false);
+        setEditingMessage(null);
+        setEditingInput('');
+      }
+      return;
+    }
+
     const userMessage = {
       role: 'user',
       content: prompt,
@@ -172,7 +331,7 @@ export default function ChatWindow() {
     }
   };
 
-  const handleImageUpload = async (file, text) => {
+  const handleImageUpload = async (file, text, editingMsg = null) => {
     const apiKey = storage.getApiKey();
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
@@ -188,7 +347,7 @@ export default function ChatWindow() {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     
-    const userMessage = {
+    const messageContent = {
       role: 'user',
       content: text || 'Analyze this image',
       type: 'image',
@@ -196,13 +355,23 @@ export default function ChatWindow() {
         reader.onloadend = () => resolve(reader.result);
       }),
       timestamp: new Date().toISOString(),
-      messageId: Date.now().toString()
+      messageId: editingMsg ? editingMsg.messageId : Date.now().toString()
     };
 
-    dispatch({
-      type: 'ADD_MESSAGE',
-      payload: userMessage
-    });
+    if (editingMsg) {
+      dispatch({
+        type: 'EDIT_MESSAGE',
+        payload: {
+          messageId: editingMsg.messageId,
+          message: messageContent
+        }
+      });
+    } else {
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: messageContent
+      });
+    }
 
     try {
       const response = await fetch('/api/process-image', {
@@ -226,7 +395,7 @@ export default function ChatWindow() {
           content: data.analysis,
           type: 'text',
           timestamp: new Date().toISOString(),
-          parentMessageId: userMessage.messageId,
+          parentMessageId: messageContent.messageId,
           contextType: 'image-analysis'
         }
       });
@@ -243,10 +412,13 @@ export default function ChatWindow() {
       });
     } finally {
       setIsProcessing(false);
+      if (editingMsg) {
+        setEditingMessage(null);
+      }
     }
   };
 
-  const handleFileUpload = async (file, text) => {
+  const handleFileUpload = async (file, text, endpoint, editingMsg = null) => {
     const apiKey = storage.getApiKey();
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
@@ -259,45 +431,31 @@ export default function ChatWindow() {
     
     // Determine file type and endpoint
     const fileType = file.type || (file.name.endsWith('.html') ? 'text/html' : 'application/octet-stream');
-    let endpoint = '/api/process-pdf';
     
-    if (fileType === 'application/pdf') {
-      endpoint = '/api/process-pdf';
-    } else if (fileType === 'text/html' || 
-               fileType === 'text/javascript' || 
-               fileType === 'text/plain' || 
-               file.name.endsWith('.js') || 
-               file.name.endsWith('.html') || 
-               file.name.endsWith('.txt')) {
-      endpoint = '/api/process-file';
-    } else {
-      setIsProcessing(false);
-      dispatch({
-        type: 'ADD_MESSAGE',
-        payload: {
-          role: 'assistant',
-          content: 'Unsupported file type. Please upload PDF, HTML, JavaScript, or text files.',
-          type: 'error',
-          timestamp: new Date().toISOString()
-        }
-      });
-      return;
-    }
-
-    const userMessage = {
+    const messageContent = {
       role: 'user',
       content: text || `Analyzing file: ${file.name}`,
       type: 'file',
       fileName: file.name,
       fileType: fileType,
       timestamp: new Date().toISOString(),
-      messageId: Date.now().toString()
+      messageId: editingMsg ? editingMsg.messageId : Date.now().toString()
     };
 
-    dispatch({
-      type: 'ADD_MESSAGE',
-      payload: userMessage
-    });
+    if (editingMsg) {
+      dispatch({
+        type: 'EDIT_MESSAGE',
+        payload: {
+          messageId: editingMsg.messageId,
+          message: messageContent
+        }
+      });
+    } else {
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: messageContent
+      });
+    }
 
     try {
       const response = await fetch(endpoint, {
@@ -321,7 +479,7 @@ export default function ChatWindow() {
           content: data.summary || data.analysis,
           type: 'text',
           timestamp: new Date().toISOString(),
-          parentMessageId: userMessage.messageId,
+          parentMessageId: messageContent.messageId,
           contextType: fileType === 'application/pdf' ? 'pdf-analysis' : 'file-analysis'
         }
       });
@@ -338,6 +496,9 @@ export default function ChatWindow() {
       });
     } finally {
       setIsProcessing(false);
+      if (editingMsg) {
+        setEditingMessage(null);
+      }
     }
   };
 
@@ -394,6 +555,10 @@ export default function ChatWindow() {
                 isProcessingFile={isProcessing}
                 isGeneratingImage={isGeneratingImage}
                 onToggleControls={() => setShowControls(!showControls)}
+                editingMessage={editingMessage}
+                onCancelEdit={cancelEditing}
+                input={input}
+                setInput={setInput}
               />
             )}
           </div>
@@ -417,6 +582,7 @@ export default function ChatWindow() {
                   key={message.timestamp} 
                   message={message}
                   previousMessage={index > 0 ? activeSession.messages[index - 1] : null}
+                  onEditMessage={handleEditMessage}
                 />
               ))}
             </div>
@@ -453,6 +619,10 @@ export default function ChatWindow() {
             isProcessingFile={isProcessing}
             isGeneratingImage={isGeneratingImage}
             onToggleControls={() => setShowControls(!showControls)}
+            editingMessage={editingMessage}
+            onCancelEdit={cancelEditing}
+            input={input}
+            setInput={setInput}
           />
         </div>
       </div>

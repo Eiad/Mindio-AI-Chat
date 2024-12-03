@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import ImageModal from './ImageModal';
-import { FiFile, FiFileText, FiCode } from 'react-icons/fi';
+import { FiFile, FiFileText, FiCode, FiEdit } from 'react-icons/fi';
 
-export default function MessageBubble({ message, previousMessage }) {
+export default function MessageBubble({ message, previousMessage, onEditMessage }) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const isUser = message.role === 'user';
   const isContextContinuation = message.parentMessageId || 
     (previousMessage && message.contextType === previousMessage.contextType);
@@ -106,7 +107,11 @@ export default function MessageBubble({ message, previousMessage }) {
   };
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} ${isContextContinuation ? 'mt-2' : 'mt-6'}`}>
+    <div 
+      className={`flex ${isUser ? 'justify-end' : 'justify-start'} ${isContextContinuation ? 'mt-2' : 'mt-6'} relative`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {!isUser && !isContextContinuation && (
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0">
           <span className="text-blue-600 text-sm">AI</span>
@@ -128,6 +133,14 @@ export default function MessageBubble({ message, previousMessage }) {
         <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center ml-2 flex-shrink-0">
           <span className="text-white text-sm">You</span>
         </div>
+      )}
+      {isUser && isHovered && message.type !== 'file' && message.type !== 'system' && message.type !== 'image' && (
+        <button
+          onClick={() => onEditMessage(message)}
+          className="absolute -right-6 top-0 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <FiEdit className="w-4 h-4" />
+        </button>
       )}
     </div>
   );

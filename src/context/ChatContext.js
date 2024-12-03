@@ -116,6 +116,29 @@ function chatReducer(state, action) {
         sessions: [],
         activeSessionId: null,
       };
+    case 'EDIT_MESSAGE':
+      const { messageId, message } = action.payload;
+      const sessionToUpdate = state.sessions.find(s => s.id === state.activeSessionId);
+      if (!sessionToUpdate) return state;
+
+      const messageIndex = sessionToUpdate.messages.findIndex(m => m.messageId === messageId);
+      if (messageIndex === -1) return state;
+
+      const editedMessages = sessionToUpdate.messages.slice(0, messageIndex);
+      editedMessages.push(message);
+
+      const updatedSession = {
+        ...sessionToUpdate,
+        messages: editedMessages,
+      };
+
+      storage.saveSession(updatedSession);
+      return {
+        ...state,
+        sessions: state.sessions.map(s =>
+          s.id === state.activeSessionId ? updatedSession : s
+        ),
+      };
     default:
       return state;
   }
