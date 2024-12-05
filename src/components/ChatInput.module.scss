@@ -1,13 +1,11 @@
 .mainChatContainer {
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 2rem;
+    margin: 0 auto;    
   }
   
   @media (max-width: 768px) {
     .mainChatContainer {
-      max-width: 100%;
-      padding: 0 1rem;
+      max-width: 100%;      
     }
   }

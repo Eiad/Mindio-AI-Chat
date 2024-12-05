@@ -110,7 +110,7 @@ export default function ChatInput({
 
   return (
     <div className="w-full ">
-      <div className={styles.mainChatContainer}>
+      <div className={`${styles.mainChatContainer} p-0`}>
         <div className="relative bg-white rounded-xl shadow-sm my-4">
           <input
             type="file"

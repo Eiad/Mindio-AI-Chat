@@ -537,7 +537,7 @@ export default function ChatWindow() {
             isOpen={state.showApiKeyModal} 
             onClose={() => dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: false })}
           />
-          <div className="p-1">
+          <div className="p-2">
             {showControls && (
               <div className="mb-4">
                 <ChatControls 
@@ -602,7 +602,7 @@ export default function ChatWindow() {
 
         {isGeneratingImage && <ImageGenerationLoader />}
 
-        <div className="p-1">
+        <div className="p-2">
           {showControls && (
             <div className="mb-4">
               <ChatControls 
