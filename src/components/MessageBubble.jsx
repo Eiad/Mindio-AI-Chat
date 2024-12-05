@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ImageModal from './ImageModal';
 import { FiFile, FiFileText, FiCode, FiEdit } from 'react-icons/fi';
+import { highlightCode } from '../utils/prisma';
 
 export default function MessageBubble({ message, previousMessage, onEditMessage, activeSession }) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -101,11 +102,56 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
       );
     }
     
-    return (
-      <p className="whitespace-pre-wrap leading-relaxed">
-        {message.content}
-      </p>
-    );
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = codeBlockRegex.exec(message.content)) !== null) {
+      // Add text before code block
+      if (match.index > lastIndex) {
+        parts.push(
+          <p key={lastIndex} className="whitespace-pre-wrap leading-relaxed">
+            {message.content.slice(lastIndex, match.index)}
+          </p>
+        );
+      }
+
+      const language = match[1]?.toLowerCase() || 'javascript';
+      const code = match[2].trim();
+      const highlightedCode = highlightCode(code, language);
+
+      parts.push(
+        <div key={match.index} className="relative group">
+          <pre className={`language-${language} rounded-lg my-4 overflow-x-auto`}>
+            <code
+              className={`language-${language}`}
+              dangerouslySetInnerHTML={{ __html: highlightedCode }}
+            />
+          </pre>
+          <div className="absolute top-0 right-0 mt-2 mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => navigator.clipboard.writeText(code)}
+              className="bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1 text-xs"
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      );
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < message.content.length) {
+      parts.push(
+        <p key={lastIndex} className="whitespace-pre-wrap leading-relaxed">
+          {message.content.slice(lastIndex)}
+        </p>
+      );
+    }
+
+    return <div className="space-y-2">{parts}</div>;
   };
 
   return (

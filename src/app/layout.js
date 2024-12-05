@@ -1,6 +1,8 @@
 import localFont from "next/font/local";
 import "./globals.scss";
 import { ChatProvider } from '../context/ChatContext';
+import '../styles/prisma-custom.scss';
+import Script from 'next/script';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -21,12 +23,22 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ChatProvider>
           {children}
         </ChatProvider>
+        <Script
+          id="prism-loader"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined') {
+                window.Prism = window.Prism || {};
+                window.Prism.manual = true;
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
