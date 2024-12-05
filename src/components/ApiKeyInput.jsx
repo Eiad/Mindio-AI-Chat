@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useSessionStorage } from '../hooks/useSessionStorage';
+import { useApiKey } from '../hooks/useApiKey';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 export default function ApiKeyInput() {
-  const [apiKey, setApiKey] = useSessionStorage('OPENAI_API_KEY', '');
+  const [apiKey, setApiKey] = useApiKey();
   const [inputValue, setInputValue] = useState(apiKey || '');
   const [showKey, setShowKey] = useState(false);
   const [error, setError] = useState('');

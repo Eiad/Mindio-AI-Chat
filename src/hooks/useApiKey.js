@@ -13,13 +13,5 @@ export function useApiKey() {
     setApiKeyState(newKey);
   };
 
-  useEffect(() => {
-    // Check for existing session storage key and migrate it
-    const sessionKey = sessionStorage.getItem('OPENAI_API_KEY');
-    if (sessionKey && !apiKey) {
-      setApiKey(sessionKey);
-    }
-  }, []);
-
   return [apiKey, setApiKey];
 }

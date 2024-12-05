@@ -1,10 +1,17 @@
 import { FiMail, FiYoutube, FiCode, FiImage } from 'react-icons/fi';
 import { useChat } from '../context/ChatContext';
+import { useApiKey } from '../hooks/useApiKey';
 
 export default function WelcomeScreen() {
-  const { createSession } = useChat();
+  const { createSession, dispatch } = useChat();
+  const [apiKey] = useApiKey();
 
   const handleCreateSession = () => {
+    if (!apiKey) {
+      dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
+      dispatch({ type: 'SET_PENDING_ACTION', payload: 'createSession' });
+      return;
+    }
     createSession();
   };
 

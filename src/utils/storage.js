@@ -43,23 +43,20 @@ export const storage = {
     return key;
   },
 
-  saveApiKey(apiKey) {
+  saveApiKey(key) {
     if (typeof window === 'undefined') return;
     const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 30); // 30 days from now
+    expiryDate.setDate(expiryDate.getDate() + 30); // Key expires in 30 days
     
     localStorage.setItem(API_KEY_STORAGE_KEY, JSON.stringify({
-      key: apiKey,
+      key,
       expiryDate: expiryDate.toISOString()
     }));
-
-    sessionStorage.setItem('OPENAI_API_KEY', apiKey);
   },
 
   removeApiKey() {
     if (typeof window === 'undefined') return;
     localStorage.removeItem(API_KEY_STORAGE_KEY);
-    sessionStorage.removeItem('OPENAI_API_KEY');
   },
 
   getDalleSettings() {

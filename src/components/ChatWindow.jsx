@@ -6,12 +6,11 @@ import ChatControls from './ChatControls';
 import ChatInput from './ChatInput';
 import ImageGenerationLoader from './ImageGenerationLoader';
 import ApiKeyModal from './ApiKeyModal';
-import { useSessionStorage } from '../hooks/useSessionStorage';
 import WelcomeScreen from './WelcomeScreen';
 import ActiveSessionWelcome from './ActiveSessionWelcome';
 import styles from './ChatWindow.module.scss';
 import { FiLoader } from 'react-icons/fi';
-import { storage } from '../utils/storage';
+import { useApiKey } from '../hooks/useApiKey';
 
 export default function ChatWindow() {
   const [input, setInput] = useState('');
@@ -23,7 +22,7 @@ export default function ChatWindow() {
   const activeSession = state.sessions.find(s => s.id === state.activeSessionId);
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [showControls, setShowControls] = useState(false);
-  const [apiKey] = useSessionStorage('OPENAI_API_KEY', '');
+  const [apiKey] = useApiKey();
   const [editingMessage, setEditingMessage] = useState(null);
   const [editingInput, setEditingInput] = useState('');
 
@@ -68,7 +67,6 @@ export default function ChatWindow() {
   };
 
   const handleSubmit = async (message, type = 'text') => {
-    const apiKey = storage.getApiKey();
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
       return;
@@ -332,7 +330,6 @@ export default function ChatWindow() {
   };
 
   const handleImageUpload = async (file, text, editingMsg = null) => {
-    const apiKey = storage.getApiKey();
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
       return;
@@ -419,7 +416,6 @@ export default function ChatWindow() {
   };
 
   const handleFileUpload = async (file, text, endpoint, editingMsg = null) => {
-    const apiKey = storage.getApiKey();
     if (!apiKey) {
       dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
       return;
@@ -513,13 +509,6 @@ export default function ChatWindow() {
       });
     }
   };
-
-  useEffect(() => {
-    const storedApiKey = storage.getApiKey();
-    if (!storedApiKey) {
-      dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
-    }
-  }, [dispatch]);
 
   if (!activeSession || (activeSession && activeSession.messages.length === 0)) {
     return (

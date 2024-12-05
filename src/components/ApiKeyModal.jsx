@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useApiKey } from '../hooks/useApiKey';
+import { useChat } from '../context/ChatContext';
 import { FiEye, FiEyeOff, FiX, FiCheckCircle, FiLoader } from 'react-icons/fi';
 
 export default function ApiKeyModal({ isOpen, onClose }) {
   const [apiKey, setApiKey] = useApiKey();
+  const { state, dispatch, createSession } = useChat();
   const [inputValue, setInputValue] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [error, setError] = useState('');
@@ -54,7 +56,11 @@ export default function ApiKeyModal({ isOpen, onClose }) {
       setTimeout(() => {
         setIsSuccess(false);
         onClose();
-        window.location.reload();
+        
+        if (state.pendingAction === 'createSession') {
+          createSession();
+          dispatch({ type: 'SET_PENDING_ACTION', payload: null });
+        }
       }, 1500);
     } catch (error) {
       setIsValidating(false);

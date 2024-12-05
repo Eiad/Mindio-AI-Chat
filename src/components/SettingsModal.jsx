@@ -6,7 +6,12 @@ import { useRouter } from 'next/navigation';
 
 export default function SettingsModal({ isOpen, onClose }) {
   const [apiKey, setApiKey] = useState(() => storage.getApiKey() || '');
-  const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('SELECTED_MODEL') || 'gpt-3.5-turbo');
+  const [selectedModel, setSelectedModel] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('SELECTED_MODEL') || 'gpt-3.5-turbo';
+    }
+    return 'gpt-3.5-turbo';
+  });
   const [dalleSettings, setDalleSettings] = useState(() => storage.getDalleSettings());
   const [showApiKey, setShowApiKey] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);

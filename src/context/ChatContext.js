@@ -22,6 +22,7 @@ const initialState = {
   },
   apiKey: null,
   showApiKeyModal: false,
+  pendingAction: null,
 };
 
 function chatReducer(state, action) {
@@ -139,6 +140,11 @@ function chatReducer(state, action) {
           s.id === state.activeSessionId ? updatedSession : s
         ),
       };
+    case 'SET_PENDING_ACTION':
+      return {
+        ...state,
+        pendingAction: action.payload
+      };
     default:
       return state;
   }
@@ -150,6 +156,14 @@ export function ChatProvider({ children }) {
   const pathname = usePathname();
 
   const createSession = useCallback(() => {
+    const apiKey = storage.getApiKey();
+    
+    if (!apiKey) {
+      dispatch({ type: 'TOGGLE_API_KEY_MODAL', payload: true });
+      dispatch({ type: 'SET_PENDING_ACTION', payload: 'createSession' });
+      return null;
+    }
+
     const newSession = {
       id: Date.now().toString(),
       messages: [],
@@ -165,7 +179,7 @@ export function ChatProvider({ children }) {
     });
     
     return newSession.id;
-  }, [router]);
+  }, [router, dispatch]);
 
   useEffect(() => {
     const sessions = storage.getSessions();
