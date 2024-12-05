@@ -2,8 +2,12 @@ import { useState } from 'react';
 import ImageModal from './ImageModal';
 import { FiFile, FiFileText, FiCode, FiEdit } from 'react-icons/fi';
 import { highlightCode } from '../utils/prisma';
+import styles from '../styles/ai-message.module.scss';
 
 export default function MessageBubble({ message, previousMessage, onEditMessage, activeSession }) {
+  if (message.hidden) {
+    return null;
+  }
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const isUser = message.role === 'user';
@@ -102,56 +106,98 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
       );
     }
     
-    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-    const parts = [];
-    let lastIndex = 0;
-    let match;
+    const processText = (text) => {
+      // First wrap all text content in paragraphs before other processing
+      text = text.split('\n').map(line => {
+        line = line.trim();
+        if (line && !line.startsWith('#') && !line.startsWith('-') && !line.startsWith('|')) {
+          return `<p>${line}</p>`;
+        }
+        return line;
+      }).join('\n');
 
-    while ((match = codeBlockRegex.exec(message.content)) !== null) {
-      // Add text before code block
-      if (match.index > lastIndex) {
-        parts.push(
-          <p key={lastIndex} className="whitespace-pre-wrap leading-relaxed">
-            {message.content.slice(lastIndex, match.index)}
-          </p>
-        );
+      // Handle headings
+      text = text.replace(/####\s+([^#\n]+)/g, '<h4>$1</h4>');
+      text = text.replace(/###\s+([^#\n]+)/g, '<h3>$1</h3>');
+      text = text.replace(/##\s+([^#\n]+)/g, '<h2>$1</h2>');
+      text = text.replace(/#\s+([^#\n]+)/g, '<h1>$1</h1>');
+
+      // Handle tables
+      const hasTable = text.includes('|');
+      if (hasTable) {
+        const lines = text.split('\n');
+        const tableLines = [];
+        let isInTable = false;
+        let processedText = '';
+
+        lines.forEach((line, index) => {
+          if (line.includes('|')) {
+            if (!isInTable) {
+              isInTable = true;
+              tableLines.push('<table class="dataTable">');
+              tableLines.push('<thead>');
+            }
+            
+            const cells = line.split('|').map(cell => cell.trim()).filter(Boolean);
+            const isHeader = line.includes('-----');
+            
+            if (isHeader) {
+              tableLines.push('</thead><tbody>');
+            } else {
+              const row = `<tr>${cells.map(cell => 
+                isInTable && index === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`
+              ).join('')}</tr>`;
+              tableLines.push(row);
+            }
+          } else if (isInTable) {
+            isInTable = false;
+            tableLines.push('</tbody></table>');
+            processedText += tableLines.join('') + '\n';
+            tableLines.length = 0;
+            if (line.trim()) {
+              processedText += line;
+            }
+          } else {
+            processedText += line + '\n';
+          }
+        });
+
+        if (isInTable) {
+          tableLines.push('</tbody></table>');
+          processedText += tableLines.join('');
+        }
+
+        text = processedText;
       }
 
-      const language = match[1]?.toLowerCase() || 'javascript';
-      const code = match[2].trim();
-      const highlightedCode = highlightCode(code, language);
+      // Handle inline formatting
+      text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+      text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-      parts.push(
-        <div key={match.index} className="relative group">
-          <pre className={`language-${language} rounded-lg my-4 overflow-x-auto`}>
-            <code
-              className={`language-${language}`}
-              dangerouslySetInnerHTML={{ __html: highlightedCode }}
-            />
-          </pre>
-          <div className="absolute top-0 right-0 mt-2 mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={() => navigator.clipboard.writeText(code)}
-              className="bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1 text-xs"
-            >
-              Copy
-            </button>
-          </div>
-        </div>
+      // Handle lists
+      text = text.replace(/^-\s+(.+)$/gm, '<li>$1</li>');
+      text = text.replace(/(<li>.*?<\/li>\n*)+/g, match => {
+        return `<ul>${match}</ul>`;
+      });
+
+      // Clean up any double-wrapped paragraphs
+      text = text.replace(/<p><p>/g, '<p>');
+      text = text.replace(/<\/p><\/p>/g, '</p>');
+
+      return (
+        <div
+          className={styles.aiMessage}
+          dangerouslySetInnerHTML={{ __html: text }}
+        />
       );
+    };
 
-      lastIndex = match.index + match[0].length;
-    }
-
-    if (lastIndex < message.content.length) {
-      parts.push(
-        <p key={lastIndex} className="whitespace-pre-wrap leading-relaxed">
-          {message.content.slice(lastIndex)}
-        </p>
-      );
-    }
-
-    return <div className="space-y-2">{parts}</div>;
+    return (
+      <div className={`space-y-2 ${!isUser ? styles.aiMessage : ''}`}>
+        {processText(message.content)}
+      </div>
+    );
   };
 
   return (
@@ -167,19 +213,19 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
       )}
       <div className={`max-w-[80%] p-4 rounded-2xl ${
         isUser
-          ? 'bg-blue-600 text-white rounded-br-sm'
+          ? 'bg-blue-50 text-blue-900 rounded-br-sm border border-blue-100'
           : 'bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100'
       }`}>
         <div className="space-y-2">
           {renderContent()}
-          <span className={`text-xs block ${isUser ? 'text-blue-100' : 'text-gray-400'}`}>
+          <span className={`text-xs block ${isUser ? 'text-blue-400' : 'text-gray-400'}`}>
             {new Date(message.timestamp).toLocaleTimeString()}
           </span>
         </div>
       </div>
       {isUser && !isContextContinuation && (
-        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center ml-2 flex-shrink-0">
-          <span className="text-white text-sm">You</span>
+        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center ml-2 flex-shrink-0">
+          <span className="text-blue-600 text-sm">You</span>
         </div>
       )}
       {isUser && isHovered && message.type !== 'file' && message.type !== 'system' && message.type !== 'image' && (

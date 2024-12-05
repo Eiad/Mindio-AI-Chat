@@ -1,0 +1,129 @@
+.aiMessage {
+  font-family: var(--font-geist-sans);
+  line-height: 1.8;
+  color: #374151;
+  font-size: 1rem;
+  max-width: 100%;
+  padding: 0;
+
+  p {
+    margin-bottom: 1.5rem;
+    white-space: pre-wrap;
+  }
+
+  ul, ol {
+    margin: 1.5rem 0;
+    padding-left: 1.5rem;
+    list-style-position: outside;
+  }
+
+  li {
+    margin: 0.75rem 0;
+    padding-left: 0.5rem;
+  }
+
+  h1, h2, h3, h4 {
+    margin: 2rem 0 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    padding-left: 0;
+  }
+
+  h1 { 
+    font-size: 1.875rem;
+    color: #111827;
+  }
+  
+  h2 { 
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-left: -0.25rem;
+  }
+  
+  h3 { 
+    font-size: 1.25rem;
+    color: #374151;
+    margin-left: -0.25rem;
+  }
+  
+  h4 { 
+    font-size: 1.125rem;
+    color: #4B5563;
+    margin-left: -0.25rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 2rem 0;
+    font-size: 0.875rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  thead {
+    background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  th {
+    font-weight: 600;
+    text-align: left;
+    color: #1f2937;
+    padding: 1rem 1.5rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+    background: transparent;
+    position: relative;
+    white-space: nowrap;
+  }
+
+  th:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 25%;
+    height: 50%;
+    width: 1px;
+    background-color: #e2e8f0;
+  }
+
+  td {
+    padding: 0.875rem 1.5rem;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+  }
+
+  td:last-child {
+    border-right: none;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:nth-child(even) {
+    background: #f9fafb;
+  }
+
+  tbody tr:hover {
+    background: #f3f4f6;
+  }
+
+  .dataTable {
+    thead {
+      background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+    }
+
+    th {
+      font-weight: 600;
+      white-space: nowrap;
+      border-bottom: 2px solid #e2e8f0;
+    }
+  }
+} 

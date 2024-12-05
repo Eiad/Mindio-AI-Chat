@@ -472,8 +472,20 @@ export default function ChatWindow() {
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
+          role: 'system',
+          content: data.fileContent,
+          type: 'file-content',
+          timestamp: new Date().toISOString(),
+          parentMessageId: messageContent.messageId,
+          hidden: true
+        }
+      });
+
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: {
           role: 'assistant',
-          content: data.summary || data.analysis,
+          content: data.analysis || data.summary,
           type: 'text',
           timestamp: new Date().toISOString(),
           parentMessageId: messageContent.messageId,
