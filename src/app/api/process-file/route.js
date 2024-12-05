@@ -21,10 +21,6 @@ export async function POST(request) {
     const formData = await request.formData();
     const file = formData.get('file');
     const userQuery = formData.get('text');
-    const smartPrompt = formData.get('smartPrompt');
-
-    console.log('User Query:', userQuery);
-    console.log('Smart Prompt:', smartPrompt);
 
     if (!file) {
       return NextResponse.json(
@@ -53,12 +49,24 @@ export async function POST(request) {
 
     const systemPrompt = `You are an AI assistant specialized in analyzing files.
 
-    ${userQuery && userQuery !== 'Please analyze this file and provide a detailed summary.' ? 
-    `Current user request: "${userQuery}"
-    Please focus on answering this specific request about the file in professional Readable sentences format.` :
-    `ONLY if the user has not provided a specific request. Please provide a brief summary of what this file is about and its main purpose (2-3 sentences) in professional Readable sentences with spacing and line breaks format.`}
+    ${userQuery && !/analyze|analyse|explain|summarize|review|interpret|evaluate|break down/i.test(userQuery) ? 
+      `Current user request: "${userQuery}"
+      Please focus on addressing this specific query.
 
-    Format your response in a clear, easy-to-read manner.`;
+      If you cannot process the request:
+      1. Explain why it couldn't be processed.
+      2. Suggest alternative approaches.
+      3. Recommend better ways to get the needed information.` : 
+      `Please process the document and provide:
+      1. A brief overview of what this document is about (2-3 sentences).
+      2. Key points or the main purpose.
+      3. Any notable patterns, structures, or trends.
+      4. Potential issues or recommendations (if any).
+
+      If the content is not readable:
+      1. Explain why it couldn't be processed.
+      2. Suggest alternative approaches.
+      3. Recommend better file formats or methods for better readability.`}`;
 
     const messages = [
       {

@@ -42,20 +42,6 @@ export default function FileUpload() {
     });
 
     try {
-      formData.append('text', `Please analyze this ${fileType} file and provide a detailed summary.`);
-      formData.append('smartPrompt', `Please analyze this file's content and provide:
-        1. Document type identification and purpose
-        2. A quick, focused summary
-        3. Key points or findings
-        4. Specific suggested actions or questions
-        5. Any important patterns or structures (if applicable)
-        6. Potential issues or recommendations
-
-        If the content is not readable or supported:
-        1. Explain why it couldn't be processed
-        2. Suggest alternative approaches
-        3. Recommend file formats or content types that would work better`);
-
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -89,7 +75,7 @@ export default function FileUpload() {
       console.error('File handling error:', error);
       const errorMessage = error.message || 'Failed to process file';
       const suggestion = errorMessage.includes('Unable to read') 
-        ? '\n\nSuggestions:\n1. Check if the file is password protected\n2. Try converting to a different format\n3. Ensure the file contains readable text content'
+        ? '\n\nSuggestions:\n1. Unable to read: Check if the file is password protected\n2. Try converting to a different format\n3. Ensure the file contains readable text content'
         : '\n\nPlease try again or upload a different file.';
       
       dispatch({

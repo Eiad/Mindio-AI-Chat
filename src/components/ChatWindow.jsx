@@ -431,19 +431,7 @@ export default function ChatWindow() {
     
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('text', text); // Remove the default text to allow the user's query to pass through
-    formData.append('smartPrompt', `Please analyze this file's content and provide:
-      1. Document type identification and purpose
-      2. A quick, focused summary
-      3. Key points or findings
-      4. Specific suggested actions or questions
-      5. Any important patterns or structures (if applicable)
-      6. Potential issues or recommendations
-
-      If the content is not readable or supported:
-      1. Explain why it couldn't be processed
-      2. Suggest alternative approaches
-      3. Recommend file formats or content types that would work better`);
+    formData.append('text', text || `Analyzing file: ${file.name}`);
     
     const messageContent = {
       role: 'user',
