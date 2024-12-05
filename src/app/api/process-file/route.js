@@ -23,6 +23,9 @@ export async function POST(request) {
     const userQuery = formData.get('text');
     const smartPrompt = formData.get('smartPrompt');
 
+    console.log('User Query:', userQuery);
+    console.log('Smart Prompt:', smartPrompt);
+
     if (!file) {
       return NextResponse.json(
         { error: 'No file provided' },
@@ -48,18 +51,32 @@ export async function POST(request) {
       );
     }
 
-    const systemPrompt = `You are an AI assistant specialized in analyzing and processing various file types.
-    Your task is to understand and fulfill the user's specific request about the document.
-    Current request: "${userQuery}"
-    
-    Instructions for processing:
-    ${smartPrompt}
-    
-    Please ensure your response is:
-    1. Directly relevant to the user's request
-    2. Well-structured and easy to understand
-    3. Accurate to the document's content
-    4. Properly formatted for readability`;
+    const systemPrompt = `You are an AI assistant specialized in analyzing files.
+
+    ${userQuery && userQuery !== 'Please analyze this file and provide a detailed summary.' ? 
+    `Current user request: "${userQuery}"
+    Please focus on answering this specific request about the file in professional Readable sentences format.` :
+    `ONLY if the user has not provided a specific request. Please provide a brief summary of what this file is about and its main purpose (2-3 sentences) in professional Readable sentences with spacing and line breaks format.`}
+
+    Format your response in a clear, easy-to-read manner.`;
+
+    const messages = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: textContent
+      }
+    ];
+
+    if (userQuery && userQuery !== 'Please analyze this file and provide a detailed summary.') {
+      messages.push({
+        role: 'user',
+        content: `Specific request about this document: ${userQuery}`
+      });
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -69,16 +86,7 @@ export async function POST(request) {
       },
       body: JSON.stringify({
         model: 'gpt-4-turbo-preview',
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: textContent
-          }
-        ],
+        messages: messages,
         max_tokens: 4000,
         temperature: 0.7
       }),

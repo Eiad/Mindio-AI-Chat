@@ -426,11 +426,24 @@ export default function ChatWindow() {
     }
 
     setIsProcessing(true);
+    // Determine file type and endpoint first
+    const fileType = file.type || (file.name.endsWith('.html') ? 'text/html' : 'application/octet-stream');
+    
     const formData = new FormData();
     formData.append('file', file);
-    
-    // Determine file type and endpoint
-    const fileType = file.type || (file.name.endsWith('.html') ? 'text/html' : 'application/octet-stream');
+    formData.append('text', text); // Remove the default text to allow the user's query to pass through
+    formData.append('smartPrompt', `Please analyze this file's content and provide:
+      1. Document type identification and purpose
+      2. A quick, focused summary
+      3. Key points or findings
+      4. Specific suggested actions or questions
+      5. Any important patterns or structures (if applicable)
+      6. Potential issues or recommendations
+
+      If the content is not readable or supported:
+      1. Explain why it couldn't be processed
+      2. Suggest alternative approaches
+      3. Recommend file formats or content types that would work better`);
     
     const messageContent = {
       role: 'user',
