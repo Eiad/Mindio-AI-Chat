@@ -34,7 +34,11 @@ export async function POST(request) {
 
     const formattedHistory = conversationHistory.map(msg => ({
       role: msg.role,
-      content: msg.content
+      content: msg.type === 'file-content' ? 
+        `Previous file content:\n${msg.content}\n\nPlease refer to this content when needed.` : 
+        msg.content,
+      timestamp: msg.timestamp,
+      messageId: msg.messageId || msg.id
     }));
 
     const messages = [

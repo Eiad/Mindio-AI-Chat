@@ -107,7 +107,8 @@ export async function POST(request) {
 
     const data = await response.json();
     return NextResponse.json({
-      analysis: data.choices[0].message.content
+      analysis: data.choices[0].message.content,
+      fileContent: textContent
     });
 
   } catch (error) {
