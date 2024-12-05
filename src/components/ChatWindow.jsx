@@ -573,6 +573,7 @@ export default function ChatWindow() {
                   message={message}
                   previousMessage={index > 0 ? activeSession.messages[index - 1] : null}
                   onEditMessage={handleEditMessage}
+                  activeSession={activeSession}
                 />
               ))}
             </div>

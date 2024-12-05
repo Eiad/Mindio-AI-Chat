@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ImageModal from './ImageModal';
 import { FiFile, FiFileText, FiCode, FiEdit } from 'react-icons/fi';
 
-export default function MessageBubble({ message, previousMessage, onEditMessage }) {
+export default function MessageBubble({ message, previousMessage, onEditMessage, activeSession }) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const isUser = message.role === 'user';
@@ -50,6 +50,7 @@ export default function MessageBubble({ message, previousMessage, onEditMessage 
             imageUrl={message.imageUrl}
             isOpen={isImageModalOpen}
             onClose={() => setIsImageModalOpen(false)}
+            messages={previousMessage?.contextType === 'chat' ? [message] : activeSession?.messages}
           />
         </div>
       );
@@ -73,6 +74,7 @@ export default function MessageBubble({ message, previousMessage, onEditMessage 
             imageUrl={message.content}
             isOpen={isImageModalOpen}
             onClose={() => setIsImageModalOpen(false)}
+            messages={activeSession?.messages}
           />
         </div>
       );
