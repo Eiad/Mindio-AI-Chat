@@ -80,16 +80,16 @@
     background: transparent;
     position: relative;
     white-space: nowrap;
-  }
 
-  th:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 25%;
-    height: 50%;
-    width: 1px;
-    background-color: #e2e8f0;
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 25%;
+      height: 50%;
+      width: 1px;
+      background-color: #e2e8f0;
+    }
   }
 
   td {
@@ -97,33 +97,56 @@
     color: #374151;
     border-bottom: 1px solid #e5e7eb;
     border-right: 1px solid #e5e7eb;
-  }
 
-  td:last-child {
-    border-right: none;
+    &:last-child {
+      border-right: none;
+    }
   }
 
   tr:last-child td {
     border-bottom: none;
   }
 
-  tbody tr:nth-child(even) {
-    background: #f9fafb;
+  tbody {
+    tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    tr:hover {
+      background: #f3f4f6;
+    }
   }
 
-  tbody tr:hover {
+  strong {
+    color: #111827;
+    font-weight: 600;
+  }
+
+  em {
+    color: #4B5563;
+    font-style: italic;
+  }
+
+  code {
     background: #f3f4f6;
+    padding: 0.2em 0.4em;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #1f2937;
   }
 
-  .dataTable {
-    thead {
-      background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
-    }
+  blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: #4B5563;
+    font-style: italic;
+  }
 
-    th {
-      font-weight: 600;
-      white-space: nowrap;
-      border-bottom: 2px solid #e2e8f0;
-    }
+  hr {
+    border: 0;
+    border-top: 1px solid #e5e7eb;
+    margin: 2rem 0;
   }
 } 

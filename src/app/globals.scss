@@ -62,3 +62,118 @@ body {
     }
   }
 }
+
+// Code syntax highlighting
+pre[class*="language-"] {
+  background: #1e1e1e !important;
+  border-radius: 0.5rem;
+  padding: 1.75rem !important;
+  margin: 0 !important;
+  overflow-x: auto;
+  position: relative;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  &::-webkit-scrollbar {
+    height: 8px;
+    background-color: #1e1e1e;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 4px;
+  }
+}
+
+code[class*="language-"] {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 0.875rem !important;
+  line-height: 1.75 !important;
+  text-shadow: none !important;
+  color: #d4d4d4 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  letter-spacing: -0.025em;
+  tab-size: 2;
+  white-space: pre !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #608b4e !important;
+  font-style: italic !important;
+}
+
+.token.keyword {
+  color: #569cd6 !important;
+  font-weight: 600 !important;
+}
+
+.token.function {
+  color: #dcdcaa !important;
+  font-weight: 500 !important;
+}
+
+.token.string {
+  color: #ce9178 !important;
+}
+
+.token.number,
+.token.boolean {
+  color: #b5cea8 !important;
+}
+
+.token.operator {
+  color: #d4d4d4 !important;
+}
+
+.token.class-name {
+  color: #4ec9b0 !important;
+  font-weight: 600 !important;
+}
+
+.token.constant {
+  color: #4fc1ff !important;
+  font-weight: 500 !important;
+}
+
+.token.punctuation {
+  color: #808080 !important;
+}
+
+.token.property {
+  color: #9cdcfe !important;
+}
+
+.token.parameter {
+  color: #9cdcfe !important;
+  font-style: italic !important;
+}
+
+.token.variable {
+  color: #9cdcfe !important;
+}
+
+.token.imports {
+  color: #c586c0 !important;
+  font-weight: 500 !important;
+}
+
+.token.builtin {
+  color: #569cd6 !important;
+}
+
+.token.attr-name {
+  color: #9cdcfe !important;
+}
+
+.token.attr-value {
+  color: #ce9178 !important;
+}
+
+.token.tag {
+  color: #569cd6 !important;
+}

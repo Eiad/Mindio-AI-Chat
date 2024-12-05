@@ -119,7 +119,7 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
         if (match.index > lastIndex) {
           const textContent = text.slice(lastIndex, match.index);
           parts.push(
-            <div key={`text-${partIndex}`}>
+            <div key={`text-${partIndex}`} className={styles.aiMessage}>
               {processInlineFormatting(textContent)}
             </div>
           );
@@ -134,17 +134,29 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
         const highlightedCode = highlightCode(code, language);
 
         parts.push(
-          <div key={`code-${partIndex}`} className="relative group my-4">
-            <div className="absolute top-0 left-0 right-0 bg-[#1e1e1e] text-gray-300 text-sm px-4 py-2 rounded-t-lg font-mono border-b border-gray-700 flex justify-between items-center">
-              <span>{displayPath}</span>
+          <div key={`code-${partIndex}`} className="relative group my-6">
+            <div className="bg-[#1e1e1e] text-gray-300 px-4 py-3 rounded-t-lg font-mono border-b border-[#2d2d2d] flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-semibold text-blue-300 bg-[#2d3748] px-2.5 py-1 rounded-md">
+                  {language.toUpperCase()}
+                </span>
+                <span className="text-sm text-gray-200 font-medium tracking-tight">
+                  {isFilePath ? fileInfo : ''}
+                </span>
+              </div>
               <button
-                onClick={() => navigator.clipboard.writeText(code)}
-                className="text-gray-400 hover:text-gray-200 transition-colors"
+                onClick={() => {
+                  navigator.clipboard.writeText(code);
+                }}
+                className="text-gray-400 hover:text-blue-300 transition-colors flex items-center gap-2 text-xs group px-2 py-1 rounded-md hover:bg-[#2d3748]"
               >
-                <span className="text-xs">Copy</span>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                <span className="font-medium">Copy code</span>
               </button>
             </div>
-            <pre className={`language-${language} rounded-lg overflow-x-auto mt-0 rounded-t-none`}>
+            <pre className={`language-${language} !rounded-t-none border border-[#2d2d2d] !mt-0`}>
               <code
                 className={`language-${language}`}
                 dangerouslySetInnerHTML={{ __html: highlightedCode }}
@@ -159,25 +171,109 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
 
       if (lastIndex < text.length) {
         parts.push(
-          <div key={`text-${partIndex}`}>
+          <div key={`text-${partIndex}`} className={styles.aiMessage}>
             {processInlineFormatting(text.slice(lastIndex))}
           </div>
         );
       }
 
-      return parts;
+      return <div className="space-y-4">{parts}</div>;
     };
 
     const processInlineFormatting = (text) => {
+      // Process table data
+      const tableRegex = /\|\s*([^|\n]+)\s*\|/g;
+      if (tableRegex.test(text)) {
+        const rows = text.split('\n');
+        const tableRows = rows.filter(row => row.trim().startsWith('|'));
+        
+        if (tableRows.length > 0) {
+          const tableHtml = `<table>
+            <thead>
+              <tr>
+                ${tableRows[0].split('|')
+                  .filter(cell => cell.trim())
+                  .map(header => `<th>${header.trim()}</th>`)
+                  .join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows.slice(2)
+                .map(row => `<tr>
+                  ${row.split('|')
+                    .filter(cell => cell.trim())
+                    .map(cell => `<td>${cell.trim()}</td>`)
+                    .join('')}
+                </tr>`)
+                .join('')}
+            </tbody>
+          </table>`;
+          
+          text = text.replace(tableRows.join('\n'), tableHtml);
+        }
+      }
+
+      // Group consecutive list items
+      const lines = text.split('\n');
+      let inOrderedList = false;
+      let inUnorderedList = false;
+      let currentList = [];
+      const processedLines = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const isOrderedItem = /^\d+\.\s+(.+)$/.test(line);
+        const isUnorderedItem = /^-\s+(.+)$/.test(line);
+
+        if (isOrderedItem) {
+          if (!inOrderedList) {
+            if (inUnorderedList) {
+              processedLines.push(`<ul>${currentList.join('')}</ul>`);
+              currentList = [];
+              inUnorderedList = false;
+            }
+            inOrderedList = true;
+          }
+          currentList.push(`<li>${line.replace(/^\d+\.\s+/, '')}</li>`);
+        } else if (isUnorderedItem) {
+          if (!inUnorderedList) {
+            if (inOrderedList) {
+              processedLines.push(`<ol>${currentList.join('')}</ol>`);
+              currentList = [];
+              inOrderedList = false;
+            }
+            inUnorderedList = true;
+          }
+          currentList.push(`<li>${line.replace(/^-\s+/, '')}</li>`);
+        } else {
+          if (inOrderedList) {
+            processedLines.push(`<ol>${currentList.join('')}</ol>`);
+            currentList = [];
+            inOrderedList = false;
+          }
+          if (inUnorderedList) {
+            processedLines.push(`<ul>${currentList.join('')}</ul>`);
+            currentList = [];
+            inUnorderedList = false;
+          }
+          processedLines.push(line);
+        }
+      }
+
+      // Handle any remaining list
+      if (inOrderedList) {
+        processedLines.push(`<ol>${currentList.join('')}</ol>`);
+      }
+      if (inUnorderedList) {
+        processedLines.push(`<ul>${currentList.join('')}</ul>`);
+      }
+
+      text = processedLines.join('\n');
+
+      // Other formatting
       text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-      
       text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      
       text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-      
-      text = text.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
-      text = text.replace(/^-\s+(.+)$/gm, '<li>$1</li>');
-      
       text = text.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
       text = text.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
       text = text.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
