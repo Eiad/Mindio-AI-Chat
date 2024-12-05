@@ -5,11 +5,13 @@ import { highlightCode } from '../utils/prisma';
 import styles from '../styles/ai-message.module.scss';
 
 export default function MessageBubble({ message, previousMessage, onEditMessage, activeSession }) {
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  
   if (message.hidden) {
     return null;
   }
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  
   const isUser = message.role === 'user';
   const isContextContinuation = message.parentMessageId || 
     (previousMessage && message.contextType === previousMessage.contextType);
