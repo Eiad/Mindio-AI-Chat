@@ -107,83 +107,80 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
     }
     
     const processText = (text) => {
-      // First wrap all text content in paragraphs before other processing
-      text = text.split('\n').map(line => {
-        line = line.trim();
-        if (line && !line.startsWith('#') && !line.startsWith('-') && !line.startsWith('|')) {
-          return `<p>${line}</p>`;
-        }
-        return line;
-      }).join('\n');
+      text = text.replace(/####\s+([^#\n]+)/g, '<h4 class="text-lg font-semibold text-gray-900 mt-6 mb-3">$1</h4>');
+      
+      const codeBlockRegex = /```([\w./:]+)?\n([\s\S]*?)```/g;
+      const parts = [];
+      let lastIndex = 0;
+      let match;
+      let partIndex = 0;
 
-      // Handle headings
-      text = text.replace(/####\s+([^#\n]+)/g, '<h4>$1</h4>');
-      text = text.replace(/###\s+([^#\n]+)/g, '<h3>$1</h3>');
-      text = text.replace(/##\s+([^#\n]+)/g, '<h2>$1</h2>');
-      text = text.replace(/#\s+([^#\n]+)/g, '<h1>$1</h1>');
-
-      // Handle tables
-      const hasTable = text.includes('|');
-      if (hasTable) {
-        const lines = text.split('\n');
-        const tableLines = [];
-        let isInTable = false;
-        let processedText = '';
-
-        lines.forEach((line, index) => {
-          if (line.includes('|')) {
-            if (!isInTable) {
-              isInTable = true;
-              tableLines.push('<table class="dataTable">');
-              tableLines.push('<thead>');
-            }
-            
-            const cells = line.split('|').map(cell => cell.trim()).filter(Boolean);
-            const isHeader = line.includes('-----');
-            
-            if (isHeader) {
-              tableLines.push('</thead><tbody>');
-            } else {
-              const row = `<tr>${cells.map(cell => 
-                isInTable && index === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`
-              ).join('')}</tr>`;
-              tableLines.push(row);
-            }
-          } else if (isInTable) {
-            isInTable = false;
-            tableLines.push('</tbody></table>');
-            processedText += tableLines.join('') + '\n';
-            tableLines.length = 0;
-            if (line.trim()) {
-              processedText += line;
-            }
-          } else {
-            processedText += line + '\n';
-          }
-        });
-
-        if (isInTable) {
-          tableLines.push('</tbody></table>');
-          processedText += tableLines.join('');
+      while ((match = codeBlockRegex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          const textContent = text.slice(lastIndex, match.index);
+          parts.push(
+            <div key={`text-${partIndex}`}>
+              {processInlineFormatting(textContent)}
+            </div>
+          );
+          partIndex++;
         }
 
-        text = processedText;
+        const fileInfo = match[1]?.toLowerCase() || 'javascript';
+        const code = match[2].trim();
+        const isFilePath = fileInfo.includes('/') || fileInfo.includes('.');
+        const language = isFilePath ? fileInfo.split('.').pop() : fileInfo;
+        const displayPath = isFilePath ? fileInfo : `${language} code`;
+        const highlightedCode = highlightCode(code, language);
+
+        parts.push(
+          <div key={`code-${partIndex}`} className="relative group my-4">
+            <div className="absolute top-0 left-0 right-0 bg-[#1e1e1e] text-gray-300 text-sm px-4 py-2 rounded-t-lg font-mono border-b border-gray-700 flex justify-between items-center">
+              <span>{displayPath}</span>
+              <button
+                onClick={() => navigator.clipboard.writeText(code)}
+                className="text-gray-400 hover:text-gray-200 transition-colors"
+              >
+                <span className="text-xs">Copy</span>
+              </button>
+            </div>
+            <pre className={`language-${language} rounded-lg overflow-x-auto mt-0 rounded-t-none`}>
+              <code
+                className={`language-${language}`}
+                dangerouslySetInnerHTML={{ __html: highlightedCode }}
+              />
+            </pre>
+          </div>
+        );
+        partIndex++;
+
+        lastIndex = match.index + match[0].length;
       }
 
-      // Handle inline formatting
+      if (lastIndex < text.length) {
+        parts.push(
+          <div key={`text-${partIndex}`}>
+            {processInlineFormatting(text.slice(lastIndex))}
+          </div>
+        );
+      }
+
+      return parts;
+    };
+
+    const processInlineFormatting = (text) => {
       text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+      
       text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      
       text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-      // Handle lists
+      
+      text = text.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
       text = text.replace(/^-\s+(.+)$/gm, '<li>$1</li>');
-      text = text.replace(/(<li>.*?<\/li>\n*)+/g, match => {
-        return `<ul>${match}</ul>`;
-      });
-
-      // Clean up any double-wrapped paragraphs
-      text = text.replace(/<p><p>/g, '<p>');
-      text = text.replace(/<\/p><\/p>/g, '</p>');
+      
+      text = text.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
+      text = text.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
+      text = text.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
 
       return (
         <div
