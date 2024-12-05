@@ -19,7 +19,7 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file');
-    const inputText = formData.get('text') || 'Analyze this image';
+    const inputText = formData.get('text') || 'Analyzing this image';
 
     if (!file) {
       return NextResponse.json(
