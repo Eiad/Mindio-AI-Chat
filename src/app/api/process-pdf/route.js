@@ -103,7 +103,7 @@ export async function POST(request) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4-turbo-preview',
+        model: 'gpt-4o-mini',
         messages: messages,
         max_tokens: 4000,
         temperature: 0.7

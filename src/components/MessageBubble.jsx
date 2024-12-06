@@ -195,7 +195,7 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
     };
 
     const processInlineFormatting = (text) => {
-      // Process table data
+      // Process table data first
       const tableRegex = /\|\s*([^|\n]+)\s*\|/g;
       if (tableRegex.test(text)) {
         const rows = text.split('\n');
@@ -227,60 +227,79 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
         }
       }
 
-      // Group consecutive list items
+      // Group consecutive list items and code blocks
       const lines = text.split('\n');
-      let inOrderedList = false;
-      let inUnorderedList = false;
-      let currentList = [];
       const processedLines = [];
+      let currentSection = [];
+      let inCodeBlock = false;
+      let codeContent = [];
+      let language = '';
+
+      // First line check for document title
+      const firstLine = lines[0];
+      if (!firstLine.match(/^[-\s]*([a-zA-Z]|\d+)[.):]\s+(.+)$/i)) {
+        processedLines.push(firstLine);
+        lines.shift();
+      }
+
+      // Start the ordered list
+      processedLines.push('<ol>');
 
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const isOrderedItem = /^\d+\.\s+(.+)$/.test(line);
-        const isUnorderedItem = /^-\s+(.+)$/.test(line);
+        const line = lines[i].trim();
+        if (!line) continue;
 
-        if (isOrderedItem) {
-          if (!inOrderedList) {
-            if (inUnorderedList) {
-              processedLines.push(`<ul>${currentList.join('')}</ul>`);
-              currentList = [];
-              inUnorderedList = false;
+        if (line.startsWith('```')) {
+          if (!inCodeBlock) {
+            // Start of code block
+            inCodeBlock = true;
+            language = line.slice(3).trim();
+            if (currentSection.length > 0) {
+              processedLines.push(`<li>${currentSection.join('\n')}`);
+              currentSection = [];
             }
-            inOrderedList = true;
-          }
-          currentList.push(`<li>${line.replace(/^\d+\.\s+/, '')}</li>`);
-        } else if (isUnorderedItem) {
-          if (!inUnorderedList) {
-            if (inOrderedList) {
-              processedLines.push(`<ol>${currentList.join('')}</ol>`);
-              currentList = [];
-              inOrderedList = false;
+          } else {
+            // End of code block
+            inCodeBlock = false;
+            const codeHtml = `<div class="relative group my-6">
+              <div class="bg-[#1e1e1e] text-gray-300 px-4 py-3 rounded-t-lg font-mono border-b border-[#2d2d2d] flex justify-between items-center">
+                <span class="text-xs font-semibold text-blue-300 bg-[#2d3748] px-2.5 py-1 rounded-md">
+                  ${language.toUpperCase()}
+                </span>
+              </div>
+              <pre class="language-${language} !rounded-t-none border border-[#2d2d2d] !mt-0">
+                <code class="language-${language}">${highlightCode(codeContent.join('\n'), language)}</code>
+              </pre>
+            </div>`;
+            
+            if (currentSection.length > 0) {
+              currentSection.push(codeHtml);
+              processedLines.push(`<li>${currentSection.join('\n')}</li>`);
+              currentSection = [];
+            } else {
+              processedLines[processedLines.length - 1] = processedLines[processedLines.length - 1].replace('</li>', `${codeHtml}</li>`);
             }
-            inUnorderedList = true;
+            codeContent = [];
           }
-          currentList.push(`<li>${line.replace(/^-\s+/, '')}</li>`);
+        } else if (inCodeBlock) {
+          codeContent.push(line);
+        } else if (line.endsWith(':')) {
+          if (currentSection.length > 0) {
+            processedLines.push(`<li>${currentSection.join('\n')}</li>`);
+          }
+          currentSection = [line];
         } else {
-          if (inOrderedList) {
-            processedLines.push(`<ol>${currentList.join('')}</ol>`);
-            currentList = [];
-            inOrderedList = false;
-          }
-          if (inUnorderedList) {
-            processedLines.push(`<ul>${currentList.join('')}</ul>`);
-            currentList = [];
-            inUnorderedList = false;
-          }
-          processedLines.push(line);
+          currentSection.push(line);
         }
       }
 
-      // Handle any remaining list
-      if (inOrderedList) {
-        processedLines.push(`<ol>${currentList.join('')}</ol>`);
+      // Handle any remaining section
+      if (currentSection.length > 0) {
+        processedLines.push(`<li>${currentSection.join('\n')}</li>`);
       }
-      if (inUnorderedList) {
-        processedLines.push(`<ul>${currentList.join('')}</ul>`);
-      }
+
+      // Close the ordered list
+      processedLines.push('</ol>');
 
       text = processedLines.join('\n');
 

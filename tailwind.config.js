@@ -18,6 +18,9 @@ module.exports = {
           light: "#F0F8FF",          // Alice Blue
           dark: "#034F84",           // Dark Blue      
       },
+      fontFamily: {
+        roboto: ['Roboto', 'sans-serif'],
+      },
     },
   },
   variants: {
