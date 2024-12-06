@@ -581,7 +581,7 @@ export default function ChatWindow() {
             <div className="space-y-6 py-6">
               {activeSession.messages.map((message, index) => (
                 <MessageBubble 
-                  key={message.timestamp} 
+                  key={`${message.messageId || message.id}-${message.timestamp}`}
                   message={message}
                   previousMessage={index > 0 ? activeSession.messages[index - 1] : null}
                   onEditMessage={handleEditMessage}
