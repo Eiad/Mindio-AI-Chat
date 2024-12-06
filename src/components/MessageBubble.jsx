@@ -227,94 +227,44 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
         }
       }
 
-      // Group consecutive list items and code blocks
+      // Process headings before list items
       const lines = text.split('\n');
       const processedLines = [];
-      let currentSection = [];
-      let inCodeBlock = false;
-      let codeContent = [];
-      let language = '';
-
-      // First line check for document title
-      const firstLine = lines[0];
-      if (!firstLine.match(/^[-\s]*([a-zA-Z]|\d+)[.):]\s+(.+)$/i)) {
-        processedLines.push(firstLine);
-        lines.shift();
-      }
-
-      // Start the ordered list
-      processedLines.push('<ol>');
-
+      
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
 
-        if (line.startsWith('```')) {
-          if (!inCodeBlock) {
-            // Start of code block
-            inCodeBlock = true;
-            language = line.slice(3).trim();
-            if (currentSection.length > 0) {
-              processedLines.push(`<li>${currentSection.join('\n')}`);
-              currentSection = [];
-            }
-          } else {
-            // End of code block
-            inCodeBlock = false;
-            const codeHtml = `<div class="relative group my-6">
-              <div class="bg-[#1e1e1e] text-gray-300 px-4 py-3 rounded-t-lg font-mono border-b border-[#2d2d2d] flex justify-between items-center">
-                <span class="text-xs font-semibold text-blue-300 bg-[#2d3748] px-2.5 py-1 rounded-md">
-                  ${language.toUpperCase()}
-                </span>
-              </div>
-              <pre class="language-${language} !rounded-t-none border border-[#2d2d2d] !mt-0">
-                <code class="language-${language}">${highlightCode(codeContent.join('\n'), language)}</code>
-              </pre>
-            </div>`;
-            
-            if (currentSection.length > 0) {
-              currentSection.push(codeHtml);
-              processedLines.push(`<li>${currentSection.join('\n')}</li>`);
-              currentSection = [];
-            } else {
-              processedLines[processedLines.length - 1] = processedLines[processedLines.length - 1].replace('</li>', `${codeHtml}</li>`);
-            }
-            codeContent = [];
+        // Check for heading pattern
+        const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
+        if (headingMatch) {
+          const level = headingMatch[1].length;
+          const content = headingMatch[2];
+          if (level === 3) {
+            processedLines.push(`<div class="heading-container"><h3 class="section-heading">${content}</h3></div>`);
+          } else if (level === 2) {
+            processedLines.push(`<h2>${content}</h2>`);
+          } else if (level === 1) {
+            processedLines.push(`<h1>${content}</h1>`);
           }
-        } else if (inCodeBlock) {
-          codeContent.push(line);
-        } else if (line.endsWith(':')) {
-          if (currentSection.length > 0) {
-            processedLines.push(`<li>${currentSection.join('\n')}</li>`);
-          }
-          currentSection = [line];
         } else {
-          currentSection.push(line);
+          processedLines.push(`<li>${line}</li>`);
         }
       }
 
-      // Handle any remaining section
-      if (currentSection.length > 0) {
-        processedLines.push(`<li>${currentSection.join('\n')}</li>`);
-      }
-
-      // Close the ordered list
-      processedLines.push('</ol>');
-
-      text = processedLines.join('\n');
+      // Wrap the list items in an <ol> tag
+      const formattedText = `<ol>${processedLines.join('')}</ol>`;
 
       // Other formatting
-      text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-      text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-      text = text.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
-      text = text.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
-      text = text.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
+      const formattedHtml = formattedText
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
       return (
         <div
           className={styles.aiMessage}
-          dangerouslySetInnerHTML={{ __html: text }}
+          dangerouslySetInnerHTML={{ __html: formattedHtml }}
         />
       );
     };

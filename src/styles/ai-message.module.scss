@@ -43,6 +43,11 @@
     font-size: 1.25rem;
     color: #374151;
     margin-left: -0.25rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.25rem;
   }
   
   h4 { 
@@ -147,5 +152,34 @@
     border: 0;
     border-top: 1px solid #e5e7eb;
     margin: 2rem 0;
+  }
+
+  .heading-container {
+    margin: 1.5rem 0 1rem;
+    padding-left: 0.5rem;
+    border-left: 3px solid #3b82f6;
+  }
+
+  h3.section-heading {
+    font-size: 1.1rem;
+    color: #1f2937;
+    font-weight: 600;
+    margin: 0;
+    padding: 0.25rem 0 0.25rem 0.75rem;
+    background: linear-gradient(to right, #f3f4f6, transparent);
+    border-radius: 0.25rem;
+  }
+
+  ol {
+    margin-top: 0.5rem;
+    
+    li {
+      padding: 0.5rem 0;
+      line-height: 1.6;
+      
+      &:first-child {
+        padding-top: 0;
+      }
+    }
   }
 } 
