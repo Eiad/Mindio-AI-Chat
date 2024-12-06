@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ImageModal from './ImageModal';
-import { FiFile, FiFileText, FiCode, FiEdit } from 'react-icons/fi';
+import { FiFile, FiFileText, FiCode, FiEdit, FiDownload } from 'react-icons/fi';
 import { highlightCode } from '../utils/prisma';
 import styles from '../styles/ai-message.module.scss';
 
@@ -40,6 +40,23 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
     return 'Document';
   };
 
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(message.content);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `image-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+    }
+  };
+
   const renderContent = () => {
     if (message.type === 'image' && isUser) {
       return (
@@ -66,12 +83,29 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
     if (message.type === 'image' && !isUser) {
       return (
         <div className="space-y-3">
-          <img 
-            src={message.content} 
-            alt={message.revisedPrompt || "Generated image"}
-            className="rounded-lg max-w-[100%] h-auto cursor-pointer hover:opacity-90 transition-opacity"
-            onClick={() => setIsImageModalOpen(true)}
-          />
+          <div
+            className="relative inline-block"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <img 
+              src={message.content} 
+              alt={message.revisedPrompt || "Generated image"}
+              className="rounded-lg max-w-[100%] h-auto cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => setIsImageModalOpen(true)}
+            />
+            {isHovered && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownload();
+                }}
+                className="absolute top-2 right-2 p-1 text-white bg-black bg-opacity-50 rounded-full hover:bg-opacity-75"
+              >
+                <FiDownload className="w-5 h-5" />
+              </button>
+            )}
+          </div>
           {message.revisedPrompt && (
             <p className="text-sm text-gray-500 italic">
               {message.revisedPrompt}
@@ -279,8 +313,6 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
   return (
     <div 
       className={`flex ${isUser ? 'justify-end' : 'justify-start'} ${isContextContinuation ? 'mt-2' : 'mt-6'} relative`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {!isUser && !isContextContinuation && (
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0">
@@ -304,14 +336,18 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
           <span className="text-blue-600 text-sm">You</span>
         </div>
       )}
-      {isUser && isHovered && message.type !== 'file' && message.type !== 'system' && message.type !== 'image' && (
-        <button
-          onClick={() => onEditMessage(message)}
-          className="absolute -right-6 top-0 p-1 text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <FiEdit className="w-4 h-4" />
-        </button>
-      )}
+      {isUser &&
+        isHovered &&
+        message.type !== 'file' &&
+        message.type !== 'system' &&
+        message.type !== 'image' && (
+          <button
+            onClick={() => onEditMessage(message)}
+            className="absolute -right-6 top-0 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <FiEdit className="w-4 h-4" />
+          </button>
+        )}
     </div>
   );
 }
