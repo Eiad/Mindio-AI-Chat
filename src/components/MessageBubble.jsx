@@ -87,8 +87,10 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
             className="relative inline-block"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+           
           >
             <img 
+              style={{ cursor: 'zoom-in' }}
               src={message.content} 
               alt={message.revisedPrompt || "Generated image"}
               className="rounded-lg max-w-[100%] h-auto cursor-pointer hover:opacity-90 transition-opacity"
