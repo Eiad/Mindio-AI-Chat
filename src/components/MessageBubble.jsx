@@ -315,6 +315,8 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
   return (
     <div 
       className={`flex ${isUser ? 'justify-end' : 'justify-start'} ${isContextContinuation ? 'mt-2' : 'mt-6'} relative`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {!isUser && !isContextContinuation && (
         <div className="w-5 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0">
@@ -345,7 +347,7 @@ export default function MessageBubble({ message, previousMessage, onEditMessage,
         message.type !== 'image' && (
           <button
             onClick={() => onEditMessage(message)}
-            className="absolute -right-6 top-0 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+            className="absolute -right-6 top-2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
           >
             <FiEdit className="w-4 h-4" />
           </button>
