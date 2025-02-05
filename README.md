@@ -3,7 +3,7 @@
 > Transform your ideas into reality with the power of AI at [mindio.chat](http://mindio.chat)
 
 ![Mindio Screenshot](public/assets/screenshot2.png)
-![Mindio Screenshot](public/assets/screenshot.png)
+
 
 Unleash the full potential of AI with Mindio - your all-in-one creative companion that brings together chat, image generation, and document analysis in one seamless experience. Whether you're a creator, developer, or professional, Mindio empowers you to achieve more with less effort.
 
@@ -23,7 +23,11 @@ Unleash the full potential of AI with Mindio - your all-in-one creative companio
 - 💻 **Code Assistant** - Get help with coding, debugging, and technical documentation
 - 🎯 **Customizable Experience** - Adjust tone, writing style, and output format to your needs
 
-## 🚀 Getting Started
+<div align="center">
+  <img src="public/assets/screenshot.png" width="400" style="margin: 20px 0;" alt="Mindio Screenshot">
+</div>
+
+## �� Getting Started
 
 1. Clone the repository
 2. Install dependencies:
