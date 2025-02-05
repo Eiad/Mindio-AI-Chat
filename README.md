@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Mindio - Your AI-Powered Creative Assistant
 
-## Getting Started
+![Mindio Screenshot](public/assets/screenshot.png)
 
-First, run the development server:
+Mindio is an innovative AI platform that combines the power of advanced language models with a sleek, intuitive interface to enhance your creative and professional workflows.
 
+## ✨ Features
+
+- 🤖 **Advanced AI Chat** - Engage in natural conversations with state-of-the-art language models
+- 🎨 **Image Generation** - Create stunning visuals using DALL-E integration
+- 📄 **Document Analysis** - Process and analyze PDFs, text files, and code files
+- 💻 **Code Assistant** - Get help with coding, debugging, and technical documentation
+- 🎯 **Customizable Experience** - Adjust tone, writing style, and output format to your needs
+
+## 🚀 Getting Started
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+npm install
+```
+3. Start the development server:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+4. Open [http://localhost:3010](http://localhost:3010) in your browser
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔑 API Configuration
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Mindio requires an OpenAI API key to function. You can add your API key through the application's settings panel.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 💡 Use Cases
 
-## Learn More
+- **Content Creation** - Generate blog posts, social media content, and marketing copy
+- **Technical Writing** - Create documentation, code explanations, and technical guides
+- **Visual Design** - Generate custom images for your projects
+- **Document Processing** - Analyze and extract insights from various document formats
+- **Code Development** - Get assistance with coding tasks and debugging
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠 Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Next.js 15.0
+- React 19
+- OpenAI API Integration
+- TailwindCSS
+- SASS/SCSS
+- PDF Processing
+- Prism.js for code highlighting
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎨 Features in Detail
 
-## Deploy on Vercel
+### AI Chat
+- Multiple conversation styles
+- Context-aware responses
+- Code syntax highlighting
+- Markdown support
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Image Generation
+- DALL-E integration
+- Multiple image sizes
+- Image editing capabilities
+- Context-aware image generation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Document Analysis
+- PDF processing
+- Code file analysis
+- Text file processing
+- Smart content extraction
+
+## 📱 Responsive Design
+
+Mindio is fully responsive and works seamlessly across desktop, tablet, and mobile devices.
+
+## 🔒 Privacy & Security
+
+- Client-side API key storage
+- No data persistence without user consent
+- Secure file processing
+
+## 🌐 Learn More
+
+Visit [http://mindio.chat](http://mindio.chat) to explore Mindio's capabilities.
+
+## 📄 License
+
+MIT License - feel free to use this project for your own purposes.
+
+---
+
+Built with ❤️ using Next.js and OpenAI
