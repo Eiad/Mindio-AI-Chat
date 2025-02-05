@@ -36,6 +36,11 @@ Unleash the full potential of AI with Mindio - your all-in-one creative companio
 </div>
 &nbsp;
 &nbsp;
+<div align="center">
+  <img src="public/assets/screenshot3.png" width="700" alt="Mindio Screenshot">
+</div>
+&nbsp;
+&nbsp;
 
 ## �� Getting Started
 
