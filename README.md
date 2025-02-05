@@ -113,8 +113,13 @@ Visit [http://mindio.chat](http://mindio.chat) to explore Mindio's capabilities.
 
 ## 📄 License
 
-MIT License - feel free to use this project for your own purposes.
+This project is licensed for non-commercial use only. For commercial licensing inquiries, please contact:
 
+<div align="center">
+
+[![Contact Us](https://img.shields.io/badge/Contact-support%40devloom.net-blue?style=for-the-badge&logo=mail.ru)](mailto:support@devloom.net)
+
+</div>
 ---
 
 Built with ❤️ using Next.js and OpenAI
