@@ -2,6 +2,7 @@
 
 > Transform your ideas into reality with the power of AI at [mindio.chat](http://mindio.chat)
 
+![Mindio Screenshot](public/assets/screenshot2.png)
 ![Mindio Screenshot](public/assets/screenshot.png)
 
 Unleash the full potential of AI with Mindio - your all-in-one creative companion that brings together chat, image generation, and document analysis in one seamless experience. Whether you're a creator, developer, or professional, Mindio empowers you to achieve more with less effort.
