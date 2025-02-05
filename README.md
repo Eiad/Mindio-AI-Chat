@@ -4,7 +4,7 @@
 
 
 <div align="center">
-  <img src="public/assets/screenshot2.png" width="600" style="margin: 20px 0;" alt="Mindio Screenshot">
+  <img src="public/assets/screenshot2.png" width="800" style="margin: 40px 0;" alt="Mindio Screenshot">
 </div>
 
 
