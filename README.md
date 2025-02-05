@@ -2,7 +2,8 @@
 
 > Transform your ideas into reality with the power of AI at [mindio.chat](http://mindio.chat)
 
-
+## &nbsp;
+## &nbsp;
 <div align="center">
   <img src="public/assets/screenshot2.png" width="800" style="margin: 40px 0;" alt="Mindio Screenshot">
 </div>
