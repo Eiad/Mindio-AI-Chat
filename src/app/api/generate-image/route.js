@@ -35,19 +35,19 @@ export async function POST(request) {
                 content: `You are an AI image generation assistant. Analyze the conversation context and help create an appropriate image prompt.
 
 Previous image generations (from oldest to newest):
-${imageMessages.map(msg => `- Prompt: ${msg.revisedPrompt}`).join('\n')}
+${imageMessages.map(msg => `- Original Prompt: ${msg.content}\n- Generated Result: ${msg.revisedPrompt}`).join('\n')}
 
 Current user request: "${prompt}"
 
 Your task:
 1. Analyze how the current request relates to previous images
-2. If it's a modification request (like "another one", "make it night", etc.), use the most relevant previous prompt as base
+2. If it's a modification request (like "make it more realistic", "another one", "make it night", etc.), use the most relevant previous prompt as base and enhance it
 3. If it's a new request, use the original prompt
 4. Return ONLY the final prompt, no explanations`
               }
             ],
             temperature: 0.7,
-            max_tokens: 300,
+            max_tokens: 500,
           }),
         });
 
