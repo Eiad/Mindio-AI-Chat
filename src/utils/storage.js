@@ -62,18 +62,45 @@ export const storage = {
   getDalleSettings() {
     if (typeof window === 'undefined') return {
       imageSize: '1024x1024',
-      imageQuality: 'standard'
+      imageQuality: 'standard',
+      model: 'dall-e-3',
+      replicate: {
+        scheduler: 'DPMSolverMultistep',
+        steps: 30,
+        guidanceScale: 7.5
+      }
     };
     
     const settings = localStorage.getItem('dalle_settings');
     return settings ? JSON.parse(settings) : {
       imageSize: '1024x1024',
-      imageQuality: 'standard'
+      imageQuality: 'standard',
+      model: 'dall-e-3',
+      replicate: {
+        scheduler: 'DPMSolverMultistep',
+        steps: 30,
+        guidanceScale: 7.5
+      }
     };
   },
 
   saveDalleSettings(settings) {
     if (typeof window === 'undefined') return;
     localStorage.setItem('dalle_settings', JSON.stringify(settings));
+  },
+
+  getReplicateApiKey() {
+    if (typeof window === 'undefined') return null;
+    return sessionStorage.getItem('REPLICATE_API_KEY');
+  },
+
+  saveReplicateApiKey(key) {
+    if (typeof window === 'undefined') return;
+    sessionStorage.setItem('REPLICATE_API_KEY', key);
+  },
+
+  removeReplicateApiKey() {
+    if (typeof window === 'undefined') return;
+    sessionStorage.removeItem('REPLICATE_API_KEY');
   }
 };
