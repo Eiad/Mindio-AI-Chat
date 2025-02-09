@@ -16,7 +16,7 @@ export default function ReplicateSettings({
       'K_EULER',
       'PNDM'
     ],
-    steps: [30, 40, 50, 60, 70, 80, 90, 100],
+    steps: [30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
     guidanceScales: [7.5, 8, 9, 10, 11, 12, 13, 14, 15],
     refiners: [
       'expert_ensemble_refiner',

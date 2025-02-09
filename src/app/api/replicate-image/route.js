@@ -15,10 +15,10 @@ export async function POST(request) {
   try {
     const { prompt } = await request.json();
 
-    const size = dalleSettings.imageSize || '1024x1024';
+    const size = imageSize || '1024x1024';
     const [width, height] = size.split('x').map(Number);
 
-    // Create prediction
+    // Create prediction with optimized settings
     const response = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
@@ -26,15 +26,20 @@ export async function POST(request) {
         Authorization: `Token ${replicateApiKey}`,
       },
       body: JSON.stringify({
-        version: "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
+        version: "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
         input: {
           prompt: prompt,
           width: width,
           height: height,
-          num_outputs: 1,
-          scheduler: dalleSettings.scheduler || "DDIM",
-          num_inference_steps: dalleSettings.steps || 30,
+          scheduler: dalleSettings.scheduler || "K_EULER_ANCESTRAL",
+          num_inference_steps: dalleSettings.steps || 50,
           guidance_scale: dalleSettings.guidanceScale || 7.5,
+          negative_prompt: dalleSettings.negativePrompt || "ugly, blurry, poor quality, distorted, disfigured",
+          refiner_strength: 0.9,
+          high_noise_frac: 0.8,
+          refiner: "expert_ensemble_refiner",
+          lora_scale: 0.6,
+          apply_watermark: false,
           disable_safety_checker: true
         },
       }),

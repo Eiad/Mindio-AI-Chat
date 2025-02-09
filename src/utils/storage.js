@@ -63,11 +63,15 @@ export const storage = {
     if (typeof window === 'undefined') return {
       imageSize: '1024x1024',
       imageQuality: 'standard',
-      model: 'dall-e-3',
+      model: 'stable-diffusion-3.5-large',
       replicate: {
         scheduler: 'DPMSolverMultistep',
         steps: 30,
-        guidanceScale: 7.5
+        guidanceScale: 7.5,
+        promptStrength: 0.8,
+        highNoiseFrac: 0.8,
+        negativePrompt: '',
+        refiner: 'expert_ensemble_refiner'
       }
     };
     
@@ -75,11 +79,15 @@ export const storage = {
     return settings ? JSON.parse(settings) : {
       imageSize: '1024x1024',
       imageQuality: 'standard',
-      model: 'dall-e-3',
+      model: 'stable-diffusion-3.5-large',
       replicate: {
         scheduler: 'DPMSolverMultistep',
         steps: 30,
-        guidanceScale: 7.5
+        guidanceScale: 7.5,
+        promptStrength: 0.8,
+        highNoiseFrac: 0.8,
+        negativePrompt: '',
+        refiner: 'expert_ensemble_refiner'
       }
     };
   },

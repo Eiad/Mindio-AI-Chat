@@ -46,8 +46,8 @@ export default function GeneralSettings({
             onChange={(e) => handleDalleSettingChange('model', e.target.value)}
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
+            <option value="stable-diffusion-3.5-large">Stable Diffusion 3.5 Large</option>
             <option value="dall-e-3">DALL-E 3</option>
-            <option value="stability-diffusion-3">Stability Diffusion 3</option>
           </select>
         </div>
       </div>

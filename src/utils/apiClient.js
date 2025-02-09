@@ -47,7 +47,7 @@ export async function fetchImageGeneration(prompt, messages = []) {
   const replicateApiKey = storage.getReplicateApiKey();
   const dalleSettings = storage.getDalleSettings();
 
-  if (dalleSettings.model === 'stability-diffusion-3') {
+  if (dalleSettings.model === 'stable-diffusion-3.5-large') {
     if (!replicateApiKey) {
       throw new Error('Please enter your Replicate API key to continue');
     }
