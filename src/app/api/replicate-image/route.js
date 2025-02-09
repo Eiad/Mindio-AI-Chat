@@ -15,6 +15,9 @@ export async function POST(request) {
   try {
     const { prompt } = await request.json();
 
+    const size = dalleSettings.imageSize || '1024x1024';
+    const [width, height] = size.split('x').map(Number);
+
     // Create prediction
     const response = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
@@ -23,15 +26,16 @@ export async function POST(request) {
         Authorization: `Token ${replicateApiKey}`,
       },
       body: JSON.stringify({
-        version: "da77bc59ee60423279fd632efb4795ab731d9e3ca9705ef3341091fb989b7eaf",
+        version: "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
         input: {
           prompt: prompt,
-          width: imageSize === '1024x1024' ? 1024 : 1024,
-          height: imageSize === '1024x1024' ? 1024 : 1024,
+          width: width,
+          height: height,
           num_outputs: 1,
           scheduler: dalleSettings.scheduler || "DDIM",
           num_inference_steps: dalleSettings.steps || 30,
           guidance_scale: dalleSettings.guidanceScale || 7.5,
+          disable_safety_checker: true
         },
       }),
     });
